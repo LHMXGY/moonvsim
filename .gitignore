@@ -7,3 +7,4 @@ target
 *.vcd
 node_modules/
 _test_artifacts/
+pkg.generated.mbti

@@ -12,6 +12,9 @@ pub(all) struct Sim {
   threads : Array[Thread]
   combs : Array[Comb]
   messages : Array[String]
+  mut vcd : @vcd.Writer?
+  mut vcd_time : Int64
+  mut vcd_started : Bool
   mut time : Int64
   mut finished : Bool
   mut max_delta : Int32
@@ -41,6 +44,9 @@ pub fn Sim::new(net : @elaborate.Netlist) -> Sim {
     threads: lw.threads,
     combs: lw.combs,
     messages: [],
+    vcd: None,
+    vcd_time: 0L,
+    vcd_started: false,
     time: 0L,
     finished: false,
     max_delta: 100,
@@ -158,4 +164,52 @@ fn Sim::eval_int(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
 
 pub fn Sim::log(self : Sim, msg : String) -> Unit {
   self.messages.push(msg)
+}
+
+/// Attach a VCD writer; changes from here on are recorded.
+pub fn Sim::attach_vcd(self : Sim, w : @vcd.Writer) -> Unit {
+  self.vcd = Some(w)
+}
+
+/// Write the VCD preamble and the time-zero values.
+pub fn Sim::dump_initial(self : Sim) -> Unit {
+  match self.vcd {
+    None => ()
+    Some(w) => {
+      w.header()
+      w.begin_dumpvars()
+      w.time_marker(0L)
+      let mut i = 0
+      while i < self.vals.length() {
+        w.value(i, self.vals[i])
+        i = i + 1
+      }
+      w.end_dumpvars()
+      self.vcd_time = 0L
+      self.vcd_started = true
+    }
+  }
+}
+
+/// Record every value that moved during the last delta cycle.
+pub fn Sim::trace(self : Sim) -> Unit {
+  match self.vcd {
+    None => ()
+    Some(w) => {
+      let mut emitted = false
+      let mut i = 0
+      while i < self.vals.length() {
+        if !self.vals[i].same_bits(self.prev[i]) {
+          if !emitted && (!self.vcd_started || self.vcd_time != self.time) {
+            w.time_marker(self.time)
+            self.vcd_time = self.time
+            self.vcd_started = true
+          }
+          emitted = true
+          w.value(i, self.vals[i])
+        }
+        i = i + 1
+      }
+    }
+  }
 }

@@ -345,6 +345,7 @@ pub fn Sim::step_once(self : Sim) -> Unit {
     }
     let _ = self.commit_nba()
     self.settle()
+    self.trace()
     let mut woke = false
     let mut j = 0
     while j < self.threads.length() {

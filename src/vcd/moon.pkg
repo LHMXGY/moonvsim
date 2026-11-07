@@ -1,0 +1,3 @@
+import {
+  "moonvsim/moonvsim/src/value" @value,
+}
