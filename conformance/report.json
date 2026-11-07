@@ -35,8 +35,37 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(arith.ctx9,arith.div,arith.mod,arith.mul,arith.selfdet,arith.sub,arith.wrap8)"
+      "reference": {
+        "arith.wrap8": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.ctx9": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.selfdet": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.sub": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.mul": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.div": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.mod": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_bits.v",
@@ -79,8 +108,45 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(bits.and,bits.not,bits.or,bits.redand,bits.redor,bits.redxor,bits.shl,bits.shr,bits.xor)"
+      "reference": {
+        "bits.and": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.or": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.xor": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.not": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.shl": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.shr": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redand": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redor": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redxor": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_case.v",
@@ -99,8 +165,46 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(case.default,case.two,case.zero)"
+      "reference": {
+        "case.zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "case.two": {
+          "pass": true,
+          "detail": ""
+        },
+        "case.default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_casex.v",
+      "top": "t_casex",
+      "checks": {
+        "casex.match": {
+          "pass": true,
+          "detail": ""
+        },
+        "casex.x_goes_default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "casex.match": {
+          "pass": true,
+          "detail": ""
+        },
+        "casex.x_goes_default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_clock.v",
@@ -115,8 +219,99 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(clock.count,clock.shift)"
+      "reference": {
+        "clock.count": {
+          "pass": true,
+          "detail": ""
+        },
+        "clock.shift": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_comb.v",
+      "top": "t_comb",
+      "checks": {
+        "comb.mux_sel1": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.assign_follows": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.mux_sel2": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.mux_default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "comb.mux_sel1": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.assign_follows": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.mux_sel2": {
+          "pass": true,
+          "detail": ""
+        },
+        "comb.mux_default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_concat2.v",
+      "top": "t_concat2",
+      "checks": {
+        "concat2.nibble": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.join": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.repl_zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.mix": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "concat2.nibble": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.join": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.repl_zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "concat2.mix": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_display.v",
@@ -127,8 +322,38 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(display.format)"
+      "reference": {
+        "display.format": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_display2.v",
+      "top": "t_display2",
+      "checks": {
+        "display2.zero_width": {
+          "pass": true,
+          "detail": ""
+        },
+        "display2.time_read": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "display2.zero_width": {
+          "pass": true,
+          "detail": ""
+        },
+        "display2.time_read": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_fsm.v",
@@ -139,8 +364,13 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(fsm.green)"
+      "reference": {
+        "fsm.green": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_hier.v",
@@ -155,8 +385,42 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(hier.invert0,hier.invert1)"
+      "reference": {
+        "hier.invert0": {
+          "pass": true,
+          "detail": ""
+        },
+        "hier.invert1": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_hier2.v",
+      "top": "t_hier2",
+      "checks": {
+        "hier2.param4": {
+          "pass": true,
+          "detail": ""
+        },
+        "hier2.param8": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "hier2.param4": {
+          "pass": true,
+          "detail": ""
+        },
+        "hier2.param8": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_logic.v",
@@ -183,8 +447,151 @@
           "detail": ""
         }
       },
+      "reference": {
+        "logic.lt": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.ne": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.eq": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.land": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.max": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_loop.v",
+      "top": "t_loop",
+      "checks": {
+        "loop.for_sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.while": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.repeat": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.after_delay": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "loop.for_sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.while": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.repeat": {
+          "pass": true,
+          "detail": ""
+        },
+        "loop.after_delay": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_multi.v",
+      "top": "t_multi",
+      "checks": {
+        "multi.counter": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi.shadow_uses_old_value": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi.assign_tracks": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "multi.counter": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi.shadow_uses_old_value": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi.assign_tracks": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_nba.v",
+      "top": "t_nba",
+      "checks": {
+        "nba.blocking_order": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.nonblocking_order": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.pipeline_latency": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.pipeline_fill": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "nba.blocking_order": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.nonblocking_order": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.pipeline_latency": {
+          "pass": true,
+          "detail": ""
+        },
+        "nba.pipeline_fill": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_neg.v",
+      "top": "t_neg",
+      "checks": {},
       "reference": {},
-      "verdict": "DIVERGES(logic.eq,logic.land,logic.lt,logic.max,logic.ne)"
+      "verdict": "ok"
     },
     {
       "design": "t_param.v",
@@ -195,8 +602,63 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(param.w4)"
+      "reference": {
+        "param.w4": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_priority.v",
+      "top": "t_priority",
+      "checks": {
+        "priority.none": {
+          "pass": true,
+          "detail": ""
+        },
+        "priority.mid": {
+          "pass": true,
+          "detail": ""
+        },
+        "priority.top_wins": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "priority.none": {
+          "pass": true,
+          "detail": ""
+        },
+        "priority.mid": {
+          "pass": true,
+          "detail": ""
+        },
+        "priority.top_wins": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_repeat2.v",
+      "top": "t_repeat2",
+      "checks": {
+        "repeat2.divider": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "repeat2.divider": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_select.v",
@@ -223,8 +685,152 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(select.concat,select.hi,select.lo,select.repl,select.rotate)"
+      "reference": {
+        "select.hi": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.lo": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.concat": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.repl": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.rotate": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_select2.v",
+      "top": "t_select2",
+      "checks": {
+        "select2.bit": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.part_plus": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.part_minus": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.index7": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "select2.bit": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.part_plus": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.part_minus": {
+          "pass": true,
+          "detail": ""
+        },
+        "select2.index7": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_signed.v",
+      "top": "t_signed",
+      "checks": {
+        "signed.asr": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.add": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.sext": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.lt": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "signed.asr": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.add": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.sext": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed.lt": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_wide.v",
+      "top": "t_wide",
+      "checks": {
+        "wide.carry": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.wrap": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.mul_trunc": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.wrap64": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "wide.carry": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.wrap": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.mul_trunc": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide.wrap64": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     },
     {
       "design": "t_xprop.v",
@@ -239,15 +845,74 @@
           "detail": ""
         }
       },
-      "reference": {},
-      "verdict": "DIVERGES(xprop.resolved,xprop.sum)"
+      "reference": {
+        "xprop.sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop.resolved": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_xprop2.v",
+      "top": "t_xprop2",
+      "checks": {
+        "xprop2.sum_x": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop2.and_x": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop2.ceq_known": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "xprop2.sum_x": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop2.and_x": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop2.ceq_known": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_zprop.v",
+      "top": "t_zprop",
+      "checks": {
+        "zprop.match": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "zprop.match": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
     }
   ],
   "summary": {
-    "designs": 11,
-    "checks": 38,
-    "passed": 38,
-    "diverged": 11,
+    "designs": 27,
+    "checks": 83,
+    "passed": 83,
+    "diverged": 0,
     "reference": "iverilog"
   }
 }

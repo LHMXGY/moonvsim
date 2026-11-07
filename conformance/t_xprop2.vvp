@@ -1,0 +1,56 @@
+#! /mingw64/bin/vvp
+:ivl_version "13.0 (stable)" "(v13_0)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\system.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_sys.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_textio.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\v2005_math.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\va_math.vpi";
+S_000001e504ed9100 .scope module, "t_xprop2" "t_xprop2" 2 2;
+ .timescale 0 0;
+L_000001e504fe0008 .functor BUFT 1, C4<10x1>, C4<0>, C4<0>, C4<0>;
+L_000001e504fe0050 .functor BUFT 1, C4<0011>, C4<0>, C4<0>, C4<0>;
+L_000001e504ed7520 .functor AND 4, L_000001e504fe0008, L_000001e504fe0050, C4<1111>, C4<1111>;
+v000001e504ed8a00_0 .net "a", 3 0, L_000001e504fe0008;  1 drivers
+v000001e504ed8aa0_0 .net "b", 3 0, L_000001e504fe0050;  1 drivers
+v000001e504ed7480_0 .net "band", 3 0, L_000001e504ed7520;  1 drivers
+v000001e504ed87e0_0 .net "ceq", 0 0, L_000001e504f95ab0;  1 drivers
+v000001e504ed8880_0 .net "eq", 0 0, L_000001e504ed8ec0;  1 drivers
+v000001e504f9a900_0 .net "sum", 3 0, L_000001e504f9a9a0;  1 drivers
+L_000001e504f9a9a0 .arith/sum 4, L_000001e504fe0008, L_000001e504fe0050;
+L_000001e504ed8ec0 .cmp/eq 4, L_000001e504fe0008, L_000001e504fe0050;
+L_000001e504f95ab0 .cmp/eeq 4, L_000001e504fe0008, L_000001e504fe0050;
+    .scope S_000001e504ed9100;
+T_0 ;
+    %delay 1, 0;
+    %vpi_call 2 12 "$display", "INFO xprop2.sum=%b band=%b", v000001e504f9a900_0, v000001e504ed7480_0 {0 0 0};
+    %load/vec4 v000001e504f9a900_0;
+    %xor/r;
+    %cmpi/e 1, 1, 1;
+    %jmp/0xz  T_0.0, 6;
+    %vpi_call 2 13 "$display", "PASS xprop2.sum_x" {0 0 0};
+T_0.0 ;
+    %load/vec4 v000001e504ed7480_0;
+    %cmpi/e 3, 2, 4;
+    %jmp/0xz  T_0.2, 6;
+    %vpi_call 2 14 "$display", "PASS xprop2.and_x" {0 0 0};
+T_0.2 ;
+    %load/vec4 v000001e504ed8880_0;
+    %cmpi/e 1, 1, 1;
+    %jmp/0xz  T_0.4, 6;
+    %vpi_call 2 15 "$display", "PASS xprop2.eq_x" {0 0 0};
+T_0.4 ;
+    %load/vec4 v000001e504ed87e0_0;
+    %cmpi/e 0, 0, 1;
+    %jmp/0xz  T_0.6, 6;
+    %vpi_call 2 16 "$display", "PASS xprop2.ceq_known" {0 0 0};
+T_0.6 ;
+    %vpi_call 2 17 "$finish" {0 0 0};
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "E:\ds\moonvsim\conformance\t_xprop2.v";

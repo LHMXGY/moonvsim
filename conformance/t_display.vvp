@@ -1,0 +1,28 @@
+#! /mingw64/bin/vvp
+:ivl_version "13.0 (stable)" "(v13_0)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\system.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_sys.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_textio.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\v2005_math.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\va_math.vpi";
+S_00000199c6cceb90 .scope module, "t_display" "t_display" 2 2;
+ .timescale 0 0;
+v00000199c6cce7c0_0 .var "v", 7 0;
+    .scope S_00000199c6cceb90;
+T_0 ;
+    %pushi/vec4 42, 0, 8;
+    %store/vec4 v00000199c6cce7c0_0, 0, 8;
+    %delay 3, 0;
+    %vpi_call 2 8 "$display", "dec=%0d hex=%h bin=%b oct=%o char=%c", v00000199c6cce7c0_0, v00000199c6cce7c0_0, v00000199c6cce7c0_0, v00000199c6cce7c0_0, "A" {0 0 0};
+    %vpi_call 2 9 "$display", "time=%0t", 32'sb00000000000000000000000000000111 {0 0 0};
+    %vpi_call 2 10 "$display", "PASS display.format" {0 0 0};
+    %vpi_call 2 11 "$finish" {0 0 0};
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "E:\ds\moonvsim\conformance\t_display.v";

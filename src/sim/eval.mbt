@@ -125,12 +125,14 @@ fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bi
     @ast.Ident(n) =>
       match self.lookup(scope, n) {
         Some(id) => {
-          let v = widen(self.vals[id], ctx)
-          if self.net.sigs[id].signed {
-            v.with_signed(true)
+          // Attach the declared signedness before widening, otherwise the
+          // sign extension would happen with the wrong signedness.
+          let raw = if self.net.sigs[id].signed {
+            self.vals[id].with_signed(true)
           } else {
-            v
+            self.vals[id]
           }
+          widen(raw, ctx)
         }
         None =>
           match self.const_of(scope, n) {

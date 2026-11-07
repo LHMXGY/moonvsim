@@ -241,6 +241,13 @@ fn Builder::range_width(self : Builder, scope : Int32, r : (@ast.Expr, @ast.Expr
   }
 }
 
+fn var_kind_is_net(k : @ast.VarKind) -> Bool {
+  match k {
+    @ast.Wire | @ast.Logic => true
+    _ => false
+  }
+}
+
 fn var_kind_is_integer(k : @ast.VarKind) -> Bool {
   match k {
     @ast.Integer => true
@@ -312,7 +319,7 @@ fn Builder::elab_module(
   for port in m.ports {
     let w = self.range_width(sid, port.range)
     for name in port.names {
-      let id = self.add_sig(prefix + name, w, false)
+      let id = self.add_sig(prefix + name, w, port.signed)
       assoc_set(self.scopes[sid].vars, name, id)
     }
   }
@@ -322,10 +329,33 @@ fn Builder::elab_module(
     } else {
       self.range_width(sid, v.range)
     }
-    let signed = var_kind_is_integer(v.kind)
+    let signed = var_kind_is_integer(v.kind) || v.signed
     for name in v.names {
       let id = self.add_sig(prefix + name, w, signed)
       assoc_set(self.scopes[sid].vars, name, id)
+    }
+  }
+
+  // Declaration initialisers.  `wire a = e;` is a continuous assignment,
+  // while `reg a = e;` is an initial assignment performed at time zero, as
+  // described by IEEE 1364-2005 section 6.2.2.
+  for v in m.vars {
+    match v.init {
+      Some(e) => {
+        if v.names.length() > 0 {
+          let lv : @ast.LValue = { name: v.names[0], sel: @ast.Whole }
+          if var_kind_is_net(v.kind) {
+            self.assigns.push({ lhs: lv, rhs: e })
+            self.assign_scope.push(sid)
+          } else {
+            let body = @ast.Block([
+              @ast.Assign(@ast.Blocking, lv, e),
+            ])
+            self.procs.push({ scope: sid, kind: @ast.Initial, body: body })
+          }
+        }
+      }
+      None => ()
     }
   }
 

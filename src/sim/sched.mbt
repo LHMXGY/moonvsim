@@ -385,6 +385,10 @@ fn Sim::next_time(self : Sim) -> Int64 {
 
 /// Run until `$finish`, until no time-based events remain, or until `max_time`.
 pub fn Sim::run(self : Sim, max_time : Int64) -> Unit {
+  // Evaluate the continuous assignments once before any initial block runs, so
+  // that time-zero values are visible (IEEE 1364 initialisation order).
+  self.settle()
+  self.trace()
   self.step_once()
   let mut ticks = 0
   while !self.finished && ticks < 10000000 {

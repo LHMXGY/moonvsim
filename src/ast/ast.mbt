@@ -141,6 +141,8 @@ pub(all) struct Port {
   /// Declared range, `None` for a 1-bit port.
   range : (Expr, Expr)?
   names : Array[String]
+  /// `input signed [7:0] a`
+  signed : Bool
 }
 
 /// `wire`/`reg`/`integer` declaration.
@@ -156,6 +158,7 @@ pub(all) struct VarDecl {
   range : (Expr, Expr)?
   names : Array[String]
   init : Expr?
+  signed : Bool
 }
 
 /// `parameter NAME = expr;`
@@ -163,6 +166,7 @@ pub(all) struct ParamDecl {
   range : (Expr, Expr)?
   name : String
   value : Expr
+  signed : Bool
 }
 
 /// Continuous assignment.

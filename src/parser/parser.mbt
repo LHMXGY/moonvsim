@@ -51,6 +51,16 @@ fn Parser::at_kw(self : Parser, s : String) -> Bool {
   }
 }
 
+/// Consume an optional `signed` / `unsigned` qualifier.
+fn Parser::eat_signed(self : Parser) -> Bool {
+  if self.eat_kw("signed") {
+    true
+  } else {
+    self.eat_kw("unsigned") |> ignore
+    false
+  }
+}
+
 fn Parser::eat(self : Parser, s : String) -> Bool {
   if self.at(s) {
     self.advance()
@@ -336,6 +346,24 @@ fn Parser::parse_power(self : Parser) -> @ast.Expr {
   }
 }
 
+/// Expand `base +: width` / `base -: width` into an explicit `[hi:lo]` pair.
+fn indexed_part(self : Parser, base : @ast.Expr, plus : Bool) -> (@ast.Expr, @ast.Expr) {
+  let width = self.parse_expr()
+  self.expect("]")
+  let one = @ast.Number({ bits: @value.Bits::from_int(1) })
+  let lo = if plus {
+    base
+  } else {
+    @ast.Binary(@ast.Sub, base, @ast.Binary(@ast.Sub, width, one))
+  }
+  let hi = if plus {
+    @ast.Binary(@ast.Add, base, @ast.Binary(@ast.Sub, width, one))
+  } else {
+    base
+  }
+  (hi, lo)
+}
+
 fn Parser::parse_primary(self : Parser) -> @ast.Expr {
   match self.cur_kind() {
     Number(b) => {
@@ -356,14 +384,20 @@ fn Parser::parse_primary(self : Parser) -> @ast.Expr {
         @ast.Call(name, args)
       } else if self.at("[") {
         self.advance()
-        let hi = self.parse_expr()
+        let first = self.parse_expr()
         if self.eat(":") {
           let lo = self.parse_expr()
           self.expect("]")
+          @ast.PartSel(@ast.Ident(name), first, lo)
+        } else if self.eat("+:") {
+          let (hi, lo) = self.indexed_part(first, true)
+          @ast.PartSel(@ast.Ident(name), hi, lo)
+        } else if self.eat("-:") {
+          let (hi, lo) = self.indexed_part(first, false)
           @ast.PartSel(@ast.Ident(name), hi, lo)
         } else {
           self.expect("]")
-          @ast.BitSel(@ast.Ident(name), hi)
+          @ast.BitSel(@ast.Ident(name), first)
         }
       } else {
         @ast.Ident(name)
@@ -434,14 +468,20 @@ fn Parser::parse_args(self : Parser) -> Array[@ast.Expr] {
 fn Parser::parse_lvalue(self : Parser) -> @ast.LValue {
   let name = self.expect_ident()
   if self.eat("[") {
-    let hi = self.parse_expr()
+    let first = self.parse_expr()
     if self.eat(":") {
       let lo = self.parse_expr()
       self.expect("]")
+      { name: name, sel: @ast.Part(first, lo) }
+    } else if self.eat("+:") {
+      let (hi, lo) = self.indexed_part(first, true)
+      { name: name, sel: @ast.Part(hi, lo) }
+    } else if self.eat("-:") {
+      let (hi, lo) = self.indexed_part(first, false)
       { name: name, sel: @ast.Part(hi, lo) }
     } else {
       self.expect("]")
-      { name: name, sel: @ast.Bit(hi) }
+      { name: name, sel: @ast.Bit(first) }
     }
   } else {
     { name: name, sel: @ast.Whole }
@@ -694,7 +734,7 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
       } else {
         @ast.Number({ bits: @value.Bits::zero(1) })
       }
-      header_params.push({ range: range, name: pname, value: value })
+      header_params.push({ range: range, name: pname, value: value, signed: false })
       if !self.eat(",") {
         break
       }
@@ -711,7 +751,7 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
       // Non-ANSI: just names; declarations appear in the body.
       while !self.at(")") && !self.at_eof() {
         let n = self.expect_ident()
-        ports.push({ dir: @ast.Inout, range: None, names: [n] })
+        ports.push({ dir: @ast.Inout, range: None, names: [n], signed: false })
         if !self.eat(",") {
           break
         }
@@ -728,6 +768,7 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
   let functions : Array[@ast.Function] = []
   let mut go = true
   while go {
+    let start = self.pos
     if self.at_kw("endmodule") || self.at_eof() {
       go = false
     } else if self.eat_kw("parameter") || self.eat_kw("localparam") {
@@ -749,6 +790,11 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
       self.advance()
     } else {
       instances.push(self.parse_instance())
+    }
+    // Guarantee progress: a recoverable syntax error must not spin forever.
+    if go && self.pos == start {
+      self.error("unexpected token in module body")
+      self.advance()
     }
   }
   if self.eat_kw("endmodule") {
@@ -779,9 +825,10 @@ fn Parser::parse_port_decl(self : Parser) -> @ast.Port {
   }
   self.eat_kw("reg") |> ignore
   self.eat_kw("wire") |> ignore
+  let signed = self.eat_signed()
   let range = self.parse_range()
   let names : Array[String] = [self.expect_ident()]
-  { dir: dir, range: range, names: names }
+  { dir: dir, range: range, names: names, signed: signed }
 }
 
 fn Parser::parse_body_port(self : Parser) -> @ast.Port {
@@ -795,6 +842,7 @@ fn Parser::parse_body_port(self : Parser) -> @ast.Port {
   }
   self.eat_kw("reg") |> ignore
   self.eat_kw("wire") |> ignore
+  let signed = self.eat_signed()
   let range = self.parse_range()
   if self.at_kw("reg") || self.at_kw("wire") {
     self.advance()
@@ -812,10 +860,11 @@ fn Parser::parse_body_port(self : Parser) -> @ast.Port {
     }
   }
   self.expect(";")
-  { dir: dir, range: range, names: names }
+  { dir: dir, range: range, names: names, signed: signed }
 }
 
 fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
+  let signed = self.eat_signed()
   let range = self.parse_range()
   let mut go = true
   while go {
@@ -825,7 +874,7 @@ fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
     } else {
       @ast.Number({ bits: @value.Bits::zero(1) })
     }
-    out.push({ range: range, name: name, value: value })
+    out.push({ range: range, name: name, value: value, signed: signed })
     if !self.eat(",") {
       go = false
     }
@@ -844,6 +893,7 @@ fn Parser::parse_var_decl(self : Parser) -> @ast.VarDecl {
     self.eat_kw("wire") |> ignore
     @ast.Wire
   }
+  let signed = self.eat_signed()
   let range = self.parse_range()
   let names : Array[String] = []
   let inits : Array[@ast.Expr?] = []
@@ -860,7 +910,7 @@ fn Parser::parse_var_decl(self : Parser) -> @ast.VarDecl {
     }
   }
   self.expect(";")
-  { kind: kind, range: range, names: names, init: inits[0] }
+  { kind: kind, range: range, names: names, init: inits[0], signed: signed }
 }
 
 fn Parser::parse_assigns(self : Parser, out : Array[@ast.ContAssign]) -> Unit {
@@ -907,9 +957,16 @@ fn Parser::parse_function(self : Parser) -> @ast.Function {
   let inputs : Array[@ast.VarDecl] = []
   while !self.at(")") && !self.at_eof() {
     self.eat_kw("input") |> ignore
+    let sgn = self.eat_signed()
     let r = self.parse_range()
     let n = self.expect_ident()
-    inputs.push({ kind: @ast.Wire, range: r, names: [n], init: None })
+    inputs.push({
+      kind: @ast.Wire,
+      range: r,
+      names: [n],
+      init: None,
+      signed: sgn,
+    })
     if !self.eat(",") {
       break
     }

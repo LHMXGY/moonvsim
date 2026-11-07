@@ -390,15 +390,22 @@ pub fn Bits::bashr(self : Bits, other : Bits) -> Bits {
   Bits::make(w, (shifted | (fill & n64(keep))) & m, 0UL, 0UL).with_signed(self.signed)
 }
 
-/// Equality: 1 when equal, x when any compared bit is unknown.
+/// Equality (`==`).
+///
+/// The result is 1 when every bit is known and equal.  It is 0 as soon as a
+/// bit that is known on both sides differs, because that alone proves the
+/// operands unequal; otherwise the result is x (IEEE 1364-2005 section 5.1.4).
 pub fn Bits::beq(self : Bits, other : Bits) -> Bits {
   let w = max_width(self, other)
   let a = self.resize(w)
   let b = other.resize(w)
-  if !a.is_known() || !b.is_known() {
+  let both_known = n64(a.unk) & n64(b.unk) & mask_of(w)
+  if ((a.val ^ b.val) & both_known) != 0UL {
+    Bits::from_bool(false)
+  } else if (a.unk | b.unk) != 0UL {
     Bits::all_x(1)
   } else {
-    Bits::from_bool((a.val & mask_of(w)) == (b.val & mask_of(w)))
+    Bits::from_bool(true)
   }
 }
 
