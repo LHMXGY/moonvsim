@@ -1,0 +1,203 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonvsim/moonvsim/src/ast"
+
+import {
+  "moonvsim/moonvsim/src/value",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub enum AssignKind {
+  Blocking
+  NonBlocking
+}
+
+pub enum BinOp {
+  Add
+  Sub
+  Mul
+  Div
+  Mod
+  Pow
+  BitAnd
+  BitOr
+  BitXor
+  BitXnor
+  LogAnd
+  LogOr
+  Lt
+  Le
+  Gt
+  Ge
+  Eq
+  Ne
+  CaseEq
+  CaseNe
+  Shl
+  Shr
+  Ashr
+}
+
+pub struct CaseArm {
+  labels : Array[Expr]?
+  body : Stmt
+}
+
+pub struct ContAssign {
+  lhs : LValue
+  rhs : Expr
+}
+
+pub struct Design {
+  modules : Array[Module]
+}
+
+pub enum Dir {
+  Input
+  Output
+  Inout
+}
+
+pub enum EventEdge {
+  Any
+  PosEdge
+  NegEdge
+}
+
+pub struct EventSpec {
+  edge : EventEdge
+  expr : Expr
+}
+
+pub enum Expr {
+  Number(Lit)
+  Ident(String)
+  BitSel(Expr, Expr)
+  PartSel(Expr, Expr, Expr)
+  Unary(UnOp, Expr)
+  Binary(BinOp, Expr, Expr)
+  Cond(Expr, Expr, Expr)
+  Concat(Array[Expr])
+  Repl(Expr, Array[Expr])
+  Call(String, Array[Expr])
+  Str(String)
+}
+
+pub struct Function {
+  name : String
+  ret_range : (Expr, Expr)?
+  inputs : Array[VarDecl]
+  body : Stmt
+}
+
+pub struct Instance {
+  module_name : String
+  instance_name : String
+  params : Array[(String?, Expr)]
+  ports : Array[PortConn]
+}
+
+pub struct LValue {
+  name : String
+  sel : Sel
+}
+
+pub struct Lit {
+  bits : @value.Bits
+}
+
+pub struct Module {
+  name : String
+  params : Array[ParamDecl]
+  ports : Array[Port]
+  vars : Array[VarDecl]
+  assigns : Array[ContAssign]
+  processes : Array[Process]
+  instances : Array[Instance]
+  functions : Array[Function]
+}
+
+pub struct ParamDecl {
+  range : (Expr, Expr)?
+  name : String
+  value : Expr
+}
+
+pub struct Port {
+  dir : Dir
+  range : (Expr, Expr)?
+  names : Array[String]
+}
+
+pub struct PortConn {
+  name : String?
+  expr : Expr?
+}
+
+pub struct Pos {
+  line : Int32
+  col : Int32
+}
+
+pub struct Process {
+  kind : ProcessKind
+  body : Stmt
+}
+
+pub enum ProcessKind {
+  Always(Array[EventSpec])
+  AlwaysComb
+  Initial
+}
+
+pub enum Sel {
+  Whole
+  Bit(Expr)
+  Part(Expr, Expr)
+}
+
+pub enum Stmt {
+  Null
+  Block(Array[Stmt])
+  Assign(AssignKind, LValue, Expr)
+  If(Expr, Stmt, Stmt?)
+  Case(Expr, Array[CaseArm], Stmt?)
+  For(Stmt, Expr, Stmt, Stmt)
+  While(Expr, Stmt)
+  Repeat(Expr, Stmt)
+  Delay(Expr, Stmt)
+  EventCtrl(Array[EventSpec], Stmt)
+  CallStmt(String, Array[Expr])
+  Disable(String)
+}
+
+pub enum UnOp {
+  Plus
+  Minus
+  Not
+  BitNot
+  RedAnd
+  RedOr
+  RedXor
+}
+
+pub struct VarDecl {
+  kind : VarKind
+  range : (Expr, Expr)?
+  names : Array[String]
+  init : Expr?
+}
+
+pub enum VarKind {
+  Wire
+  Reg
+  Integer
+  Logic
+}
+
+// Type aliases
+
+// Traits
