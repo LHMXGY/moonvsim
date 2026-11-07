@@ -389,8 +389,8 @@ fn Lexer::read_number(self : Lexer) -> @value.Bits {
       v
     }
   } else {
-    // Plain unsized decimal, 32 bits wide.
-    @value.Bits::from_uint(parse_uint_text(size_text), 32)
+    // Plain unsized decimal: 32 bits wide and signed (IEEE 1364-2005 3.5.1).
+    @value.Bits::from_uint(parse_uint_text(size_text), 32).with_signed(true)
   }
 }
 

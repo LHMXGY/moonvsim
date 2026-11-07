@@ -182,6 +182,39 @@
       "verdict": "ok"
     },
     {
+      "design": "t_case_multi.v",
+      "top": "t_case_multi",
+      "checks": {
+        "case_multi.grp0": {
+          "pass": true,
+          "detail": ""
+        },
+        "case_multi.grp1": {
+          "pass": true,
+          "detail": ""
+        },
+        "case_multi.default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "case_multi.grp0": {
+          "pass": true,
+          "detail": ""
+        },
+        "case_multi.grp1": {
+          "pass": true,
+          "detail": ""
+        },
+        "case_multi.default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_casex.v",
       "top": "t_casex",
       "checks": {
@@ -314,6 +347,23 @@
       "verdict": "ok"
     },
     {
+      "design": "t_delay_assign.v",
+      "top": "t_delay_assign",
+      "checks": {
+        "delay_assign.value": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "delay_assign.value": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_display.v",
       "top": "t_display",
       "checks": {
@@ -349,6 +399,23 @@
           "detail": ""
         },
         "display2.time_read": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_for_always.v",
+      "top": "t_for_always",
+      "checks": {
+        "for_always.even": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "for_always.even": {
           "pass": true,
           "detail": ""
         }
@@ -416,6 +483,56 @@
           "detail": ""
         },
         "hier2.param8": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_hier_out.v",
+      "top": "t_hier_out",
+      "checks": {
+        "hier_out.nested_signal": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "hier_out.nested_signal": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_ifdecl.v",
+      "top": "t_ifdecl",
+      "checks": {
+        "ifdecl.net_init": {
+          "pass": true,
+          "detail": ""
+        },
+        "ifdecl.var_init": {
+          "pass": true,
+          "detail": ""
+        },
+        "ifdecl.param_branch": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "ifdecl.net_init": {
+          "pass": true,
+          "detail": ""
+        },
+        "ifdecl.var_init": {
+          "pass": true,
+          "detail": ""
+        },
+        "ifdecl.param_branch": {
           "pass": true,
           "detail": ""
         }
@@ -546,6 +663,47 @@
       "verdict": "ok"
     },
     {
+      "design": "t_multi_out.v",
+      "top": "t_multi_out",
+      "checks": {
+        "multi_out.inc": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.underflow": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.max": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "multi_out.inc": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.underflow": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "multi_out.max": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_nba.v",
       "top": "t_nba",
       "checks": {
@@ -594,6 +752,39 @@
       "verdict": "ok"
     },
     {
+      "design": "t_ops2.v",
+      "top": "t_ops2",
+      "checks": {
+        "ops2.mod": {
+          "pass": true,
+          "detail": ""
+        },
+        "ops2.pow": {
+          "pass": true,
+          "detail": ""
+        },
+        "ops2.nand_reduce": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "ops2.mod": {
+          "pass": true,
+          "detail": ""
+        },
+        "ops2.pow": {
+          "pass": true,
+          "detail": ""
+        },
+        "ops2.nand_reduce": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_param.v",
       "top": "t_param",
       "checks": {
@@ -604,6 +795,39 @@
       },
       "reference": {
         "param.w4": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_part_lvalue.v",
+      "top": "t_part_lvalue",
+      "checks": {
+        "part_lvalue.assign": {
+          "pass": true,
+          "detail": ""
+        },
+        "part_lvalue.bit_read": {
+          "pass": true,
+          "detail": ""
+        },
+        "part_lvalue.overwrite": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "part_lvalue.assign": {
+          "pass": true,
+          "detail": ""
+        },
+        "part_lvalue.bit_read": {
+          "pass": true,
+          "detail": ""
+        },
+        "part_lvalue.overwrite": {
           "pass": true,
           "detail": ""
         }
@@ -654,6 +878,23 @@
       },
       "reference": {
         "repeat2.divider": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_reset.v",
+      "top": "t_reset",
+      "checks": {
+        "reset.async_clear": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "reset.async_clear": {
           "pass": true,
           "detail": ""
         }
@@ -751,6 +992,47 @@
       "verdict": "ok"
     },
     {
+      "design": "t_shift_var.v",
+      "top": "t_shift_var",
+      "checks": {
+        "shift_var.left": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.right": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.arithmetic": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.left_long": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "shift_var.left": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.right": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.arithmetic": {
+          "pass": true,
+          "detail": ""
+        },
+        "shift_var.left_long": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_signed.v",
       "top": "t_signed",
       "checks": {
@@ -792,6 +1074,56 @@
       "verdict": "ok"
     },
     {
+      "design": "t_signed_mix.v",
+      "top": "t_signed_mix",
+      "checks": {
+        "signed_mix.unsigned_compare": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed_mix.cast_negative": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "signed_mix.unsigned_compare": {
+          "pass": true,
+          "detail": ""
+        },
+        "signed_mix.cast_negative": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_while.v",
+      "top": "t_while",
+      "checks": {
+        "while.sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "while.repeat": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "while.sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "while.repeat": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
       "design": "t_wide.v",
       "top": "t_wide",
       "checks": {
@@ -826,6 +1158,31 @@
           "detail": ""
         },
         "wide.wrap64": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "verdict": "ok"
+    },
+    {
+      "design": "t_wide2.v",
+      "top": "t_wide2",
+      "checks": {
+        "wide2.mul_shift": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide2.wrap": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {
+        "wide2.mul_shift": {
+          "pass": true,
+          "detail": ""
+        },
+        "wide2.wrap": {
           "pass": true,
           "detail": ""
         }
@@ -909,9 +1266,9 @@
     }
   ],
   "summary": {
-    "designs": 27,
-    "checks": 83,
-    "passed": 83,
+    "designs": 40,
+    "checks": 113,
+    "passed": 113,
     "diverged": 0,
     "reference": "iverilog"
   }

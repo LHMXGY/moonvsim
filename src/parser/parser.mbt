@@ -304,14 +304,24 @@ fn Parser::parse_mul(self : Parser) -> @ast.Expr {
 }
 
 fn Parser::parse_unary(self : Parser) -> @ast.Expr {
+  // `~&`, `~|` and `~^` are reductions with the result inverted; model them as
+  // a reduction followed by a logical negation so the AST keeps one node type.
+  if self.at("~&") || self.at("~|") || self.at("~^") || self.at("^~") {
+    let kind = if self.at("~&") {
+      @ast.RedAnd
+    } else if self.at("~|") {
+      @ast.RedOr
+    } else {
+      @ast.RedXor
+    }
+    self.advance()
+    let operand = self.parse_unary()
+    return @ast.Unary(@ast.Not, @ast.Unary(kind, operand))
+  }
   let op = if self.at("~") {
     Some(@ast.BitNot)
   } else if self.at("!") {
     Some(@ast.Not)
-  } else if self.at("~&") {
-    Some(@ast.RedAnd)
-  } else if self.at("~|") {
-    Some(@ast.RedOr)
   } else if self.at("-") {
     Some(@ast.Minus)
   } else if self.at("+") {

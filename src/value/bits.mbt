@@ -299,7 +299,7 @@ pub fn Bits::bdiv(self : Bits, other : Bits) -> Bits {
   if !a.is_known() || !b.is_known() || b.val == 0UL {
     return Bits::all_x(w)
   }
-  if a.signed || b.signed {
+  if a.signed && b.signed {
     Bits::from_sint(signed_value(a, w) / signed_value(b, w), w)
   } else {
     let r = Bits::make(w, a.val / b.val, 0UL, 0UL)
@@ -315,7 +315,7 @@ pub fn Bits::bmod(self : Bits, other : Bits) -> Bits {
   if !a.is_known() || !b.is_known() || b.val == 0UL {
     return Bits::all_x(w)
   }
-  if a.signed || b.signed {
+  if a.signed && b.signed {
     Bits::from_sint(signed_value(a, w) % signed_value(b, w), w)
   } else {
     let r = Bits::make(w, a.val % b.val, 0UL, 0UL)
@@ -433,14 +433,15 @@ pub fn Bits::bcase_ne(self : Bits, other : Bits) -> Bits {
   Bits::from_bool(r.val == 0UL)
 }
 
-/// Unsigned (or signed when either side is signed) less-than.
+/// Unsigned less-than; signed only when both operands are signed (IEEE 1364
+/// 5.1.4: a single unsigned operand makes the whole comparison unsigned).
 pub fn Bits::blt(self : Bits, other : Bits) -> Bits {
   let w = max_width(self, other)
   let a = self.resize(w)
   let b = other.resize(w)
   if !a.is_known() || !b.is_known() {
     Bits::all_x(1)
-  } else if a.signed || b.signed {
+  } else if a.signed && b.signed {
     Bits::from_bool(signed_value(a, w) < signed_value(b, w))
   } else {
     Bits::from_bool(a.val < b.val)
@@ -464,7 +465,7 @@ pub fn Bits::bgt(self : Bits, other : Bits) -> Bits {
   let b = other.resize(w)
   if !a.is_known() || !b.is_known() {
     Bits::all_x(1)
-  } else if a.signed || b.signed {
+  } else if a.signed && b.signed {
     Bits::from_bool(signed_value(a, w) > signed_value(b, w))
   } else {
     Bits::from_bool(a.val > b.val)

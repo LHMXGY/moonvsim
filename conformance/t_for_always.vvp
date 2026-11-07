@@ -1,0 +1,66 @@
+#! /mingw64/bin/vvp
+:ivl_version "13.0 (stable)" "(v13_0)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\system.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_sys.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\vhdl_textio.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\v2005_math.vpi";
+:vpi_module "E:\ds\tools\iverilog\mingw64\lib\ivl\va_math.vpi";
+S_000001a66c3c9ef0 .scope module, "t_for_always" "t_for_always" 2 2;
+ .timescale 0 0;
+v000001a66c3778e0_0 .var/i "i", 31 0;
+v000001a66c3ca080_0 .var "parity", 0 0;
+v000001a66c3774e0_0 .var "v", 7 0;
+E_000001a66c3c8450 .event anyedge, v000001a66c3ca080_0, v000001a66c3774e0_0;
+    .scope S_000001a66c3c9ef0;
+T_0 ;
+    %wait E_000001a66c3c8450;
+    %pushi/vec4 0, 0, 1;
+    %store/vec4 v000001a66c3ca080_0, 0, 1;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v000001a66c3778e0_0, 0, 32;
+T_0.0 ; Top of for-loop
+    %load/vec4 v000001a66c3778e0_0;
+    %cmpi/s 8, 0, 32;
+	  %jmp/0xz T_0.1, 5;
+    %load/vec4 v000001a66c3ca080_0;
+    %load/vec4 v000001a66c3774e0_0;
+    %load/vec4 v000001a66c3778e0_0;
+    %part/s 1;
+    %xor;
+    %store/vec4 v000001a66c3ca080_0, 0, 1;
+T_0.2 ; for-loop step statement
+    %load/vec4 v000001a66c3778e0_0;
+    %addi 1, 0, 32;
+    %store/vec4 v000001a66c3778e0_0, 0, 32;
+    %jmp T_0.0;
+T_0.1 ; for-loop exit label
+    %jmp T_0;
+    .thread T_0, $push;
+    .scope S_000001a66c3c9ef0;
+T_1 ;
+    %pushi/vec4 178, 0, 8;
+    %store/vec4 v000001a66c3774e0_0, 0, 8;
+    %delay 1, 0;
+    %load/vec4 v000001a66c3ca080_0;
+    %cmpi/e 1, 0, 1;
+    %jmp/0xz  T_1.0, 6;
+    %vpi_call 2 15 "$display", "PASS for_always.odd" {0 0 0};
+T_1.0 ;
+    %pushi/vec4 240, 0, 8;
+    %store/vec4 v000001a66c3774e0_0, 0, 8;
+    %delay 1, 0;
+    %load/vec4 v000001a66c3ca080_0;
+    %cmpi/e 0, 0, 1;
+    %jmp/0xz  T_1.2, 6;
+    %vpi_call 2 18 "$display", "PASS for_always.even" {0 0 0};
+T_1.2 ;
+    %vpi_call 2 19 "$finish" {0 0 0};
+    %end;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "E:\ds\moonvsim\conformance\t_for_always.v";
