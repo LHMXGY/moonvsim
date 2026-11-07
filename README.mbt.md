@@ -160,12 +160,13 @@ python conformance/run_conformance.py
 
 `bench/run_bench.py` runs `examples/bench.v` (a 16-bit LFSR, a 32-bit
 accumulator and a combinational datapath) for 20,000 clock cycles under both
-simulators and requires them to agree on the final state:
+simulators, requires them to agree on the final state, and writes the numbers
+to [bench/RESULTS.md](bench/RESULTS.md). On this machine that is roughly
 
 | simulator | wall time | cycles / s |
 | --- | --- | --- |
-| moonvsim (native, release) | 492 ms | 40,637 |
-| Icarus Verilog 13.0 | 70 ms | 287,154 |
+| moonvsim (native, release) | ~0.5 s | ~40,000 |
+| Icarus Verilog 13.0 | ~0.07 s | ~280,000 |
 
 Both print `bench done sum=26dfe118 prod=4c9b18d7`. The current engine walks the
 AST and resolves identifiers by name, which costs roughly 7× against Icarus;

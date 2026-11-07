@@ -87,6 +87,8 @@ def run_moonvsim(exe, design, top, timeout, workdir):
 
 
 def run_iverilog(exe, design, top, timeout, workdir):
+    # The compiled `.vvp` sits next to the design; it is git-ignored, and it has
+    # to live in the tree because some sandboxes deny writes to temp dirs.
     vvp = os.path.join(workdir, top + ".vvp")
     code, out = run([exe, "-g2005", "-o", vvp, "-s", top, design], timeout, workdir)
     if code != 0:

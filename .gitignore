@@ -8,3 +8,5 @@ target
 node_modules/
 _test_artifacts/
 pkg.generated.mbti
+*.vvp
+conformance/*.log
