@@ -11,3 +11,4 @@ pkg.generated.mbti
 *.vvp
 conformance/*.log
 __pycache__/
+.dsh-office-*/
