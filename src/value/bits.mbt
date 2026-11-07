@@ -665,3 +665,30 @@ pub fn Bits::bpow(self : Bits, other : Bits) -> Bits {
 pub fn Bits::to_int(self : Bits) -> Int32 {
   (self.val & mask_of(32)).reinterpret_as_int64().to_int()
 }
+
+/// A `width`-bit value with every bit set to `l`.
+pub fn Bits::from_logic(l : Logic, width : Int32) -> Bits {
+  let w = if width < 1 { 1 } else { width }
+  let m = mask_of(w)
+  match l {
+    Zero => Bits::make(w, 0UL, 0UL, 0UL)
+    One => Bits::make(w, m, 0UL, 0UL)
+    Z => Bits::make(w, 0UL, 0UL, m)
+    X => Bits::make(w, 0UL, m, 0UL)
+  }
+}
+
+/// Pack a string into 8 bits per character, first character in the high bits.
+pub fn Bits::from_bytes_string(s : String) -> Bits {
+  let mut out = Bits::zero(0)
+  let mut i = 0
+  while i < s.length() {
+    let c = match s.get_char(i) {
+      Some(ch) => ch
+      None => '\u{0}'
+    }
+    out = out.concat(Bits::from_uint(c.to_int().reinterpret_as_uint().to_uint64(), 8))
+    i = i + 1
+  }
+  out
+}

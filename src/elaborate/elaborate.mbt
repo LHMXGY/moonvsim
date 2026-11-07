@@ -455,3 +455,15 @@ fn expr_to_lvalue(e : @ast.Expr) -> @ast.LValue? {
     _ => None
   }
 }
+
+/// Find a net by fully qualified name.
+pub fn find_sig(net : Netlist, name : String) -> Int32? {
+  let mut i = 0
+  for s in net.sigs {
+    if s.name == name {
+      return Some(i)
+    }
+    i = i + 1
+  }
+  None
+}

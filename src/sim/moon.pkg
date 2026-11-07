@@ -1,0 +1,9 @@
+import {
+  "moonvsim/moonvsim/src/ast" @ast,
+  "moonvsim/moonvsim/src/elaborate" @elaborate,
+  "moonvsim/moonvsim/src/value" @value,
+}
+
+import {
+  "moonvsim/moonvsim/src/parser" @parser,
+} for "wbtest"

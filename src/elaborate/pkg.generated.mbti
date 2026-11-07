@@ -13,6 +13,8 @@ pub fn elaborate(@ast.Design) -> Netlist
 
 pub fn elaborate_top(@ast.Design, String) -> Netlist
 
+pub fn find_sig(Netlist, String) -> Int32?
+
 // Errors
 
 // Types and methods

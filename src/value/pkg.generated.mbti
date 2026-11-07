@@ -58,7 +58,9 @@ pub fn Bits::bxor(Self, Self) -> Self
 pub fn Bits::concat(Self, Self) -> Self
 pub fn Bits::format(Self, Char, Int32, Bool) -> String
 pub fn Bits::from_bool(Bool) -> Self
+pub fn Bits::from_bytes_string(String) -> Self
 pub fn Bits::from_int(Int32) -> Self
+pub fn Bits::from_logic(Logic, Int32) -> Self
 pub fn Bits::from_sint(Int64, Int32) -> Self
 pub fn Bits::from_uint(UInt64, Int32) -> Self
 pub fn Bits::has_z(Self) -> Bool

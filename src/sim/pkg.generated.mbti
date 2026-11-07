@@ -1,0 +1,70 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonvsim/moonvsim/src/sim"
+
+import {
+  "moonvsim/moonvsim/src/ast",
+  "moonvsim/moonvsim/src/elaborate",
+  "moonvsim/moonvsim/src/value",
+}
+
+// Values
+pub fn lower_all(@elaborate.Netlist) -> Lowered
+
+// Errors
+
+// Types and methods
+pub(all) struct Comb {
+  scope : Int32
+  body : @ast.Stmt
+}
+
+pub(all) struct Lowered {
+  threads : Array[Thread]
+  combs : Array[Comb]
+}
+
+pub(all) enum Op {
+  Run(@ast.Stmt)
+  WaitDelay(@ast.Expr)
+  WaitEdges(Array[Int32], Array[Int32])
+  Finish
+  Jump(Int32)
+}
+
+pub(all) struct Sim {
+  net : @elaborate.Netlist
+  vals : Array[@value.Bits]
+  prev : Array[@value.Bits]
+  nba : Array[@value.Bits]
+  nba_pending : Array[Bool]
+  threads : Array[Thread]
+  combs : Array[Comb]
+  messages : Array[String]
+  mut time : Int64
+  mut finished : Bool
+  mut max_delta : Int32
+  mut dirty : Bool
+}
+pub fn Sim::eval_sized(Self, Int32, @ast.Expr, Int32) -> @value.Bits
+pub fn Sim::log(Self, String) -> Unit
+pub fn Sim::lookup(Self, Int32, String) -> Int32?
+pub fn Sim::new(@elaborate.Netlist) -> Self
+pub fn Sim::read(Self, Int32) -> @value.Bits
+pub fn Sim::run(Self, Int64) -> Unit
+pub fn Sim::snapshot(Self) -> Unit
+pub fn Sim::step_once(Self) -> Unit
+pub fn Sim::write(Self, Int32, @value.Bits) -> Bool
+
+pub(all) struct Thread {
+  scope : Int32
+  ops : Array[Op]
+  mut pc : Int32
+  mut waiting : Int32
+  mut wait_time : Int64
+  mut edge_sigs : Array[Int32]
+  mut edge_modes : Array[Int32]
+}
+
+// Type aliases
+
+// Traits
