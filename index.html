@@ -507,6 +507,12 @@
       });
 
       $("load-demo").addEventListener("click", async () => {
+        // `web/demo.html` is this page with the trace inlined, so the demo also
+        // works from file:// where fetch() is blocked.
+        if (window.MOONVSIM_DEMO_VCD) {
+          loadText(window.MOONVSIM_DEMO_VCD, "demo.vcd");
+          return;
+        }
         try {
           const res = await fetch("demo.vcd");
           if (!res.ok) throw new Error("HTTP " + res.status);

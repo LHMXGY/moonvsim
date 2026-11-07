@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>moonvsim waveform viewer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1117;
+        --panel: #171a23;
+        --line: #262b38;
+        --text: #d7dce8;
+        --muted: #8b93a7;
+        --wave: #4cc4a6;
+        --wave-hi: #7ee7c7;
+        --bus: #e0a458;
+        --accent: #6ea8fe;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+      }
+      header h1 {
+        font-size: 17px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      header .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      main {
+        padding: 18px 24px 40px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .toolbar button,
+      .toolbar label.file {
+        background: #1f2431;
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 6px 12px;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .toolbar button:hover,
+      .toolbar label.file:hover {
+        border-color: var(--accent);
+      }
+      .toolbar input[type="file"] {
+        display: none;
+      }
+      #status {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      #status.error {
+        color: #ff8a80;
+      }
+      #drop {
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        padding: 28px;
+        text-align: center;
+        color: var(--muted);
+        background: var(--panel);
+      }
+      #view {
+        display: none;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      canvas {
+        display: block;
+        width: 100%;
+      }
+      .hint {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      code {
+        background: #1f2431;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>moonvsim waveform viewer</h1>
+      <span class="meta" id="meta">no trace loaded</span>
+    </header>
+    <main>
+      <div class="toolbar">
+        <label class="file">
+          open .vcd
+          <input type="file" id="file" accept=".vcd,text/plain" />
+        </label>
+        <button id="load-demo">load demo trace</button>
+        <button id="fit">fit to window</button>
+        <span id="status"></span>
+      </div>
+      <div id="drop">drop a .vcd file here, or use "open .vcd"</div>
+      <div id="view"><canvas id="canvas" height="200"></canvas></div>
+      <p class="hint">
+        This page is a dependency-free VCD renderer so that
+        <code>moonvsim run design.v --vcd out.vcd</code> has something to look
+        at without installing a waveform toolchain.
+      </p>
+    </main>
+
+    <script>window.MOONVSIM_DEMO_VCD = "$version moonvsim $end\n$timescale 1ns $end\n$var wire 1 0 clk $end\n$var wire 1 1 rst $end\n$scope module dut $end\n$var wire 1 2 clk $end\n$var wire 1 3 rst $end\n$var wire 4 4 cnt $end\n$var wire 8 5 shreg $end\n$var wire 2 6 state $end\n$var wire 1 7 busy $end\n$var wire 4 8 count $end\n$var wire 8 9 shift $end\n$var wire 2 A st $end\n$var wire 1 B waiting $end\n$upscope $end\n$enddefinitions $end\n$dumpvars\n#0\nx 0\nx 1\nx 2\nx 3\nbxxxx 4\nbxxxxxxxx 5\nbxx 6\nx 7\nbxxxx 8\nbxxxxxxxx 9\nbxx A\nx B\n$end\n0 0\n1 1\n0 2\n1 3\n#5\n1 0\n1 2\nb0000 4\nb10100101 5\nb00 6\n0 7\nb0000 8\nb10100101 9\nb00 A\n0 B\n#10\n0 0\n0 2\n#12\n0 1\n0 3\n#15\n1 0\n1 2\nb0001 4\nb01001011 5\nb01 6\n1 7\nb0001 8\nb01001011 9\nb01 A\n1 B\n#20\n0 0\n0 2\n#25\n1 0\n1 2\nb0010 4\nb10010110 5\nb0010 8\nb10010110 9\n#30\n0 0\n0 2\n#35\n1 0\n1 2\nb0011 4\nb00101101 5\nb0011 8\nb00101101 9\n#40\n0 0\n0 2\n#45\n1 0\n1 2\nb0100 4\nb01011010 5\nb0100 8\nb01011010 9\n#50\n0 0\n0 2\n#55\n1 0\n1 2\nb0101 4\nb10110100 5\nb0101 8\nb10110100 9\n#60\n0 0\n0 2\n#65\n1 0\n1 2\nb0110 4\nb01101001 5\nb10 6\n0 7\nb0110 8\nb01101001 9\nb10 A\n0 B\n#70\n0 0\n0 2\n#75\n1 0\n1 2\nb0111 4\nb11010010 5\nb0111 8\nb11010010 9\n#80\n0 0\n0 2\n#85\n1 0\n1 2\nb1000 4\nb10100101 5\nb1000 8\nb10100101 9\n#90\n0 0\n0 2\n#95\n1 0\n1 2\nb1001 4\nb01001011 5\nb1001 8\nb01001011 9\n#100\n0 0\n0 2\n#105\n1 0\n1 2\nb1010 4\nb10010110 5\nb00 6\nb1010 8\nb10010110 9\nb00 A\n#110\n0 0\n0 2\n#115\n1 0\n1 2\nb1011 4\nb00101101 5\nb01 6\n1 7\nb1011 8\nb00101101 9\nb01 A\n1 B\n#120\n0 0\n0 2\n#125\n1 0\n1 2\nb1100 4\nb01011010 5\nb1100 8\nb01011010 9\n#130\n0 0\n0 2\n#135\n1 0\n1 2\nb1101 4\nb10110100 5\nb1101 8\nb10110100 9\n#140\n0 0\n0 2\n#145\n1 0\n1 2\nb1110 4\nb01101001 5\nb1110 8\nb01101001 9\n#150\n0 0\n0 2\n#155\n1 0\n1 2\nb1111 4\nb11010010 5\nb1111 8\nb11010010 9\n#160\n0 0\n0 2\n#165\n1 0\n1 2\nb0000 4\nb10100101 5\nb0000 8\nb10100101 9\n#170\n0 0\n0 2\n#175\n1 0\n1 2\nb0001 4\nb01001011 5\nb0001 8\nb01001011 9\n#180\n0 0\n0 2\n#185\n1 0\n1 2\nb0010 4\nb10010110 5\nb0010 8\nb10010110 9\n#190\n0 0\n0 2\n#195\n1 0\n1 2\nb0011 4\nb00101101 5\nb0011 8\nb00101101 9\n#200\n0 0\n0 2\n";</script>
+<script>
+      "use strict";
+
+      const NAME_W = 190;
+      const ROW_H = 26;
+      const TOP_H = 26;
+      const PAD = 10;
+
+      const state = {
+        scopes: [],
+        vars: [],
+        changes: [],
+        endTime: 0,
+        pixelsPerTick: 4,
+        offset: 0,
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const canvas = $("canvas");
+      const ctx = canvas.getContext("2d");
+
+      function status(msg, isError = false) {
+        const el = $("status");
+        el.textContent = msg;
+        el.className = isError ? "error" : "";
+      }
+
+      function parseVcd(text) {
+        const tokens = text.split(/\s+/).filter((t) => t.length > 0);
+        const scopes = [];
+        const vars = [];
+        const changes = [];
+        let time = 0;
+        let i = 0;
+        const scopePath = [];
+
+        const readUntil = (word) => {
+          const parts = [];
+          while (i < tokens.length && tokens[i] !== word) {
+            parts.push(tokens[i]);
+            i += 1;
+          }
+          i += 1;
+          return parts;
+        };
+
+        while (i < tokens.length) {
+          const tok = tokens[i];
+          if (tok === "$scope") {
+            i += 1;
+            const kind = tokens[i];
+            i += 1;
+            const name = tokens[i];
+            i += 1;
+            scopePath.push(name);
+            scopes.push({ kind, name, path: scopePath.join(".") });
+            readUntil("$end");
+            continue;
+          }
+          if (tok === "$upscope") {
+            scopePath.pop();
+            i += 1;
+            readUntil("$end");
+            continue;
+          }
+          if (tok === "$var") {
+            i += 1;
+            const kind = tokens[i];
+            i += 1;
+            const width = parseInt(tokens[i], 10);
+            i += 1;
+            const id = tokens[i];
+            i += 1;
+            const name = tokens[i];
+            i += 1;
+            let bitIndex = null;
+            let range = null;
+            while (i < tokens.length && tokens[i] !== "$end") {
+              const extra = tokens[i];
+              const bitMatch = /^\[(\d+)\]$/.exec(extra);
+              const rangeMatch = /^\[(\d+):(\d+)\]$/.exec(extra);
+              if (bitMatch) bitIndex = parseInt(bitMatch[1], 10);
+              if (rangeMatch) range = extra;
+              i += 1;
+            }
+            i += 1;
+            vars.push({
+              kind,
+              width,
+              id,
+              name,
+              scope: scopePath.join("."),
+              bitIndex,
+              range,
+              changes: [],
+            });
+            continue;
+          }
+          if (tok === "$enddefinitions" || tok === "$dumpvars" || tok === "$end") {
+            i += 1;
+            continue;
+          }
+          if (tok === "$comment") {
+            i += 1;
+            readUntil("$end");
+            continue;
+          }
+          if (tok.startsWith("$")) {
+            i += 1;
+            readUntil("$end");
+            continue;
+          }
+          if (/^#\d+$/.test(tok)) {
+            time = parseInt(tok.slice(1), 10);
+            if (time > state.endTime) state.endTime = time;
+            i += 1;
+            continue;
+          }
+          let id = null;
+          let value = null;
+          if (tok.startsWith("b") || tok.startsWith("B")) {
+            value = tok.slice(1).replace(/[xzXZ]/g, "x");
+            id = tokens[i + 1];
+            i += 2;
+          } else if (tok.startsWith("r") || tok.startsWith("R")) {
+            value = tok.slice(1);
+            id = tokens[i + 1];
+            i += 2;
+          } else if (/^[01xzXZ]$/.test(tok)) {
+            // Scalar change: either `0!` (value glued to the id) or `0 !`
+            // (value and id separated by whitespace, as moonvsim writes it).
+            value = tok.toLowerCase();
+            const nextTok = tokens[i + 1];
+            if (nextTok && !nextTok.startsWith("#") && !nextTok.startsWith("$")) {
+              id = nextTok;
+              i += 2;
+            } else {
+              i += 1;
+              continue;
+            }
+          } else if (tok.length >= 2) {
+            value = tok.slice(0, 1);
+            id = tok.slice(1);
+            i += 1;
+          } else {
+            i += 1;
+            continue;
+          }
+          const v = vars.find((item) => item.id === id);
+          if (v) {
+            v.changes.push({ time, value });
+            changes.push({ time, id, value });
+          }
+        }
+
+        for (const v of vars) {
+          v.changes.sort((a, b) => a.time - b.time);
+        }
+        if (state.endTime === 0) {
+          state.endTime = 1;
+          for (const c of changes) if (c.time > state.endTime) state.endTime = c.time;
+        }
+        return { scopes, vars };
+      }
+
+      function valueAt(v, time) {
+        let out = null;
+        for (const c of v.changes) {
+          if (c.time > time) break;
+          out = c.value;
+        }
+        return out;
+      }
+
+      function isBus(v) {
+        return v.width > 1;
+      }
+
+      function toHex(bits) {
+        if (!bits) return "?";
+        if (/^[01]+$/.test(bits)) {
+          let hex = "";
+          let padded = bits;
+          while (padded.length % 4 !== 0) padded = "0" + padded;
+          for (let k = 0; k < padded.length; k += 4) {
+            hex += parseInt(padded.slice(k, k + 4), 2).toString(16);
+          }
+          return hex.replace(/^0+(?=.)/, "");
+        }
+        const compact = bits.replace(/^0+/, "");
+        return bits.length > 8 ? "x" : bits;
+      }
+
+      function segments(v) {
+        const out = [];
+        const end = state.endTime;
+        let cur = { time: 0, value: v.width === 1 ? "x" : "x" };
+        for (const c of v.changes) {
+          if (c.time > cur.time) {
+            out.push({ from: cur.time, to: c.time, value: cur.value });
+          }
+          cur = { time: c.time, value: c.value };
+        }
+        out.push({ from: cur.time, to: end, value: cur.value });
+        return out;
+      }
+
+      function draw() {
+        const vars = state.vars;
+        if (!vars.length) return;
+        const width = canvas.clientWidth;
+        const height = TOP_H + vars.length * ROW_H + PAD * 2;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.height = height;
+        canvas.style.height = height + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "#171a23";
+        ctx.fillRect(0, 0, width, height);
+
+        const waveW = width - NAME_W - PAD;
+        const span = Math.max(state.endTime, 1);
+        let pps = state.pixelsPerTick;
+        if (state.fit) {
+          pps = waveW / span;
+        }
+        const xOf = (t) => NAME_W + t * pps - state.offset;
+        const gridStep = niceStep(span / Math.max(4, Math.floor(waveW / 90)));
+
+        ctx.strokeStyle = "#262b38";
+        ctx.fillStyle = "#8b93a7";
+        ctx.font = "11px ui-monospace, Consolas, monospace";
+        ctx.textBaseline = "middle";
+        ctx.beginPath();
+        for (let t = 0; t <= span; t += gridStep) {
+          const x = xOf(t);
+          if (x < NAME_W || x > width) continue;
+          ctx.moveTo(Math.round(x) + 0.5, TOP_H);
+          ctx.lineTo(Math.round(x) + 0.5, height - PAD);
+          ctx.fillText(String(t), x + 3, TOP_H - 9);
+        }
+        ctx.stroke();
+
+        let y = TOP_H + PAD;
+        for (const v of vars) {
+          ctx.fillStyle = "#d7dce8";
+          ctx.font = "12px ui-monospace, Consolas, monospace";
+          const label = v.scope ? v.scope.split(".").pop() + "." + v.name : v.name;
+          ctx.fillText(trim(label, NAME_W - 16), 8, y + ROW_H / 2);
+          ctx.fillStyle = "#8b93a7";
+          ctx.font = "10px ui-monospace, Consolas, monospace";
+          ctx.fillText(String(v.width) + "b", NAME_W - 26, y + ROW_H / 2);
+
+          ctx.strokeStyle = "#222736";
+          ctx.beginPath();
+          ctx.moveTo(0, Math.round(y + ROW_H) + 0.5);
+          ctx.lineTo(width, Math.round(y + ROW_H) + 0.5);
+          ctx.stroke();
+
+          const segs = segments(v);
+          if (isBus(v)) {
+            for (const s of segs) {
+              const x0 = Math.max(NAME_W, xOf(s.from));
+              const x1 = Math.min(width, xOf(s.to));
+              if (x1 - x0 < 2) continue;
+              const text = toHex(s.value);
+              const cy = y + ROW_H / 2;
+              ctx.strokeStyle = text === "x" ? "#ff8a80" : "#e0a458";
+              ctx.fillStyle = "rgba(224,164,88,0.10)";
+              ctx.beginPath();
+              ctx.moveTo(x0, cy);
+              ctx.lineTo(x0 + 6, y + 6);
+              ctx.lineTo(x1 - 6, y + 6);
+              ctx.lineTo(x1, cy);
+              ctx.lineTo(x1 - 6, y + ROW_H - 6);
+              ctx.lineTo(x0 + 6, y + ROW_H - 6);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              if (x1 - x0 > 26) {
+                ctx.fillStyle = text === "x" ? "#ff8a80" : "#f3c48a";
+                ctx.fillText(text, x0 + 9, cy);
+              }
+            }
+          } else {
+            ctx.strokeStyle = "#4cc4a6";
+            ctx.beginPath();
+            let prevX = null;
+            let prevHigh = null;
+            for (const s of segs) {
+              const high = s.value === "1";
+              const x0 = Math.max(NAME_W, xOf(s.from));
+              const x1 = Math.min(width, xOf(s.to));
+              if (x1 - x0 < 0.5) continue;
+              const yLow = y + ROW_H - 7;
+              const yHigh = y + 7;
+              if (prevX === null) {
+                ctx.moveTo(x0, high ? yHigh : yLow);
+              } else if (high !== prevHigh) {
+                ctx.lineTo(x0, prevHigh ? yHigh : yLow);
+                ctx.lineTo(x0, high ? yHigh : yLow);
+              } else {
+                ctx.lineTo(x0, high ? yHigh : yLow);
+              }
+              ctx.lineTo(x1, high ? yHigh : yLow);
+              prevX = x1;
+              prevHigh = high;
+            }
+            ctx.stroke();
+          }
+          y += ROW_H;
+        }
+
+        ctx.strokeStyle = "#1d2230";
+        ctx.beginPath();
+        ctx.moveTo(NAME_W - 8.5, TOP_H);
+        ctx.lineTo(NAME_W - 8.5, height - PAD);
+        ctx.stroke();
+      }
+
+      function trim(s, n) {
+        return s.length <= n ? s : s.slice(0, n - 1) + "…";
+      }
+
+      function niceStep(raw) {
+        const pow = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1))));
+        for (const mult of [1, 2, 5, 10]) {
+          if (mult * pow >= raw) return mult * pow;
+        }
+        return 10 * pow;
+      }
+
+      function loadText(text, label) {
+        try {
+          state.scopes = [];
+          state.vars = [];
+          state.changes = [];
+          state.endTime = 0;
+          state.offset = 0;
+          state.fit = true;
+          const parsed = parseVcd(text);
+          state.scopes = parsed.scopes;
+          state.vars = parsed.vars;
+          if (!state.vars.length) {
+            status("no $var declarations found", true);
+            return;
+          }
+          $("drop").style.display = "none";
+          $("view").style.display = "block";
+          $("meta").textContent =
+            label +
+            " · " +
+            state.vars.length +
+            " signals · " +
+            state.endTime +
+            " time units";
+          status("loaded " + label);
+          requestAnimationFrame(draw);
+        } catch (err) {
+          status("parse error: " + err.message, true);
+        }
+      }
+
+      $("file").addEventListener("change", (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => loadText(String(reader.result), file.name);
+        reader.readAsText(file);
+      });
+
+      $("load-demo").addEventListener("click", async () => {
+        // `web/demo.html` is this page with the trace inlined, so the demo also
+        // works from file:// where fetch() is blocked.
+        if (window.MOONVSIM_DEMO_VCD) {
+          loadText(window.MOONVSIM_DEMO_VCD, "demo.vcd");
+          return;
+        }
+        try {
+          const res = await fetch("demo.vcd");
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          loadText(await res.text(), "demo.vcd");
+        } catch (err) {
+          status("could not load demo.vcd: " + err.message, true);
+        }
+      });
+
+      $("fit").addEventListener("click", () => {
+        state.offset = 0;
+        state.fit = true;
+        draw();
+      });
+
+      const drop = $("drop");
+      drop.addEventListener("dragover", (ev) => {
+        ev.preventDefault();
+        drop.style.borderColor = "#6ea8fe";
+      });
+      drop.addEventListener("dragleave", () => {
+        drop.style.borderColor = "#262b38";
+      });
+      drop.addEventListener("drop", (ev) => {
+        ev.preventDefault();
+        drop.style.borderColor = "#262b38";
+        const file = ev.dataTransfer.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => loadText(String(reader.result), file.name);
+        reader.readAsText(file);
+      });
+
+      window.addEventListener("resize", () => {
+        if (state.vars.length) draw();
+      });
+    </script>
+  </body>
+</html>
