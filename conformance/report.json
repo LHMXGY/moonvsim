@@ -1,5 +1,5 @@
 {
-  "moonvsim": "E:\\ds\\moonvsim\\_build\\native\\debug\\build\\src\\cmd\\cmd.exe",
+  "moonvsim": "E:\\ds\\moonvsim\\_build\\native\\release\\build\\src\\cmd\\cmd.exe",
   "iverilog": "E:\\ds\\moonvsim\\..\\tools\\iverilog\\mingw64\\bin\\iverilog.exe",
   "designs": [
     {

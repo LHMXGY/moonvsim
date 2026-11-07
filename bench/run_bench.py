@@ -31,10 +31,12 @@ EXE = ".exe" if os.name == "nt" else ""
 
 
 def default_moonvsim() -> Path:
+    # `cmd.exe` is what the native backend emits, on Linux as well.
     for profile in ("release", "debug"):
-        p = ROOT / "_build" / "native" / profile / "build" / "src" / "cmd" / f"cmd{EXE}"
-        if p.exists():
-            return p
+        for name in ("cmd.exe", "cmd"):
+            p = ROOT / "_build" / "native" / profile / "build" / "src" / "cmd" / name
+            if p.exists():
+                return p
     return ROOT / "_build" / "native" / "release" / "build" / "src" / "cmd" / f"cmd{EXE}"
 
 
@@ -78,7 +80,7 @@ def main() -> int:
         sys.exit(f"error: {moonvsim} does not exist; run `moon build src/cmd --target native --release`")
 
     iv = Path(args.iverilog)
-    vvp = iv.with_name("vvp" + EXE)
+    vvp = iv.with_name("vvp" + iv.suffix)
     vvp_file = ROOT / "bench" / f"{TOP}.vvp"
     run([str(iv), "-g2005", "-o", str(vvp_file), "-s", TOP, str(DESIGN)], ROOT)
 

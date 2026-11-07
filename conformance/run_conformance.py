@@ -26,9 +26,24 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 EXE = ".exe" if os.name == "nt" else ""
-DEFAULT_MOONVSIM = os.path.join(
-    ROOT, "_build", "native", "debug", "build", "src", "cmd", "cmd" + EXE
-)
+
+
+def _find_moonvsim():
+    # The native backend names its output `cmd.exe` even on Linux, so accept
+    # both spellings and both build profiles.
+    for profile in ("release", "debug"):
+        for name in ("cmd.exe", "cmd"):
+            candidate = os.path.join(
+                ROOT, "_build", "native", profile, "build", "src", "cmd", name
+            )
+            if os.path.isfile(candidate):
+                return candidate
+    return os.path.join(
+        ROOT, "_build", "native", "debug", "build", "src", "cmd", "cmd" + EXE
+    )
+
+
+DEFAULT_MOONVSIM = _find_moonvsim()
 
 
 def find_iverilog():
