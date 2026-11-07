@@ -386,6 +386,14 @@ fn Parser::parse_primary(self : Parser) -> @ast.Expr {
     }
     Ident(name) => {
       self.advance()
+      // Hierarchical reference such as `dut.sub.count`: keep the dotted path in
+      // one identifier so the elaborator can resolve it against flattened nets.
+      let mut full = name
+      while self.at(".") {
+        self.advance()
+        full = full + "." + self.expect_ident()
+      }
+      let name = full
       if self.at("(") {
         // Function or system task call used as an expression.
         self.advance()

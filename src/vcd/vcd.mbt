@@ -13,13 +13,21 @@ pub(all) struct Writer {
 }
 
 fn code_of(n : Int32) -> String {
-  // VCD identifiers are printable ASCII from '!' to '~' (94 symbols).
+  // VCD identifiers may be any printable ASCII; we restrict them to
+  // [0-9A-Za-z] so that an id can never be confused with the `#<time>` and
+  // `$keyword` tokens that structure the file (the naive '!'-based scheme
+  // produces '#' and '$' for the third and fourth signal, which breaks
+  // readers that look at the first character).
+  let alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   let sb = StringBuilder()
   let mut k = n + 1
   while k > 0 {
-    let d = (k - 1) % 94
-    sb.write_char((33 + d).unsafe_to_char())
-    k = (k - 1) / 94
+    let d = (k - 1) % 62
+    sb.write_char(match alphabet.get_char(d) {
+      Some(c) => c
+      None => '0'
+    })
+    k = (k - 1) / 62
   }
   sb.to_string()
 }

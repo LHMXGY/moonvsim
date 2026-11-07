@@ -4,62 +4,159 @@ A **MoonBit-native four-state event-driven RTL simulator for Verilog-2001**.
 
 `moonvsim` reads a synthesizable Verilog subset plus a testbench, elaborates the
 design hierarchy, and runs it as a discrete-event simulation. It writes
-standard VCD traces, so every waveform viewer (GTKWave, Surfer, VS Code
-WaveTrace) can open the results, and it can be cross-checked bit-for-bit
-against Icarus Verilog.
+standard VCD traces, so every waveform viewer (GTKwave, Surfer, VS Code
+WaveTrace) can open the results — and it is cross-checked against Icarus Verilog
+on every check of every design in the conformance suite.
 
-```
-$ moonvsim run counter_tb.v --top counter_tb --vcd out.vcd --stop-time 200
-[tb] reset asserted
-[tb] count=0
-[tb] count=1
-...
-moonvsim: 200 ns elapsed, 13 clock cycles, 0 errors
-```
-
-## Why another simulator
-
-MoonBit already has Verilog *linters* (`moonbit-rtl`), VCD readers
-(`moonbit-vcd`, `minivcd_mbt`), an analog SPICE solver
-(`moonbit-circuit-solver`), Gerber tooling and even an EtherCAT master, but no
-digital RTL execution engine. `moonvsim` is that missing keystone: it turns a
-design into events, not just diagnostics.
-
-## Status
-
-| Milestone | State |
-| --- | --- |
-| Four-state bit vectors, 64-bit, x/z propagation | done |
-| Verilog-2001 lexer and parser | in progress |
-| Elaboration (parameters, widths, hierarchy) | planned |
-| Event scheduler and simulation kernel | planned |
-| VCD writer | planned |
-| CLI and browser playground | planned |
-| Differential test suite against Icarus Verilog | planned |
-
-## Layout
-
-```
-src/value/      four-state bit vectors, arithmetic, formatting
-src/ast/        HDL syntax tree
-src/lexer/      tokenizer
-src/parser/     Verilog-2001 parser
-src/elaborate/  parameters, widths, hierarchy
-src/sched/      event scheduler
-src/sim/        simulation kernel, nets, processes, VCD tracing
-src/vcd/        Value Change Dump writer
-src/cmd/        command line interface
-src/web/        browser demo
-test/           Verilog designs and expected traces
-```
-
-## Build
+![waveform viewer](web/screenshot.png)
 
 ```sh
-moon build --target native     # CLI
-moon build --target wasm-gc    # browser demo
-moon test                      # unit tests
+$ moonvsim run examples/counter.v --vcd counter.vcd --max-time 120
+t=100 q=9 carry=0
+moonvsim: 4 nets, 4 processes, stopped at t=100
+moonvsim: wrote counter.vcd
 ```
+
+## Why this exists
+
+MoonBit already has a Verilog *linter* (`moonbit-rtl`), VCD readers
+(`moonbit-vcd`, `minivcd_mbt`), an analog SPICE solver
+(`moonbit-circuit-solver`), Gerber tooling (`moonbit-gerberkit`) and an EtherCAT
+master (`MoonECAT`), but no digital RTL execution engine. The linters say so
+themselves: *"not a synthesizer, simulator, or replacement for a complete IEEE
+Verilog implementation"*. `moonvsim` is that missing keystone — it turns a
+design into events, not just diagnostics.
+
+## What is implemented
+
+| Area | Status |
+| --- | --- |
+| Four-state bit vectors (0/1/x/z), 1..64 bits, x/z propagation | done |
+| Verilog-2001 lexer (literals, comments, escaped ids, all operators) | done |
+| Recursive-descent parser (modules, ports, params, statements, instances) | done |
+| Elaboration: hierarchy, parameter override, port binding, widths, signedness | done |
+| Stratified event scheduler with delta cycles and non-blocking assignment | done |
+| Continuous assignments and combinational fixpoint | done |
+| Blocking / non-blocking assignment, `if`, `case`, `for`, `while`, `repeat` | done |
+| `#delay`, edge events, `always @(posedge/negedge/*)` | done |
+| `$display`/`$write`/`$finish`, format specifiers | done |
+| VCD writer (hierarchy, scopes, ids, value changes) | done |
+| CLI: `run`, `--top`, `--vcd`, `--max-time` | done |
+| Browser waveform viewer (no dependencies) | done |
+| Differential conformance suite against Icarus Verilog | done |
+
+### In scope
+
+* Verilog-2001 synthesizable subset: `module`, `input`/`output`/`inout`,
+  `wire`/`reg`/`integer`, parameters and localparams, `assign`, gate-free
+  expressions, `always`/`initial`, `case`/`casez`-style equality, functions
+  used as expressions are parsed but not executed.
+* Testbench constructs: `initial`, `#delay`, `@(posedge/negedge)`,
+  `$display`-family, `$finish`.
+
+### Out of scope (deliberate, documented)
+
+* SystemVerilog (`logic` is accepted as an alias for `reg` only).
+* User-defined primitives, `specify` blocks, `fork`/`join`, `real`, timing
+  checks, `force`/`release`, SDF back-annotation.
+* Synthesis. This is a simulator, not a synthesizer.
+
+## Conformance: 40 designs, 113 checks, 0 divergences
+
+`conformance/run_conformance.py` runs every design twice — once through
+`moonvsim`, once through Icarus Verilog 13.0 — and compares the `PASS`/`FAIL`
+lines that the self-checking testbenches print. A divergence fails the run.
+
+```
+40 designs, 113 checks, 113 passed, 0 diverged, reference=iverilog
+```
+
+The suite covers arithmetic context widths, bitwise and reduction operators,
+part/bit/indexed selects (`+:`/`-:`), concatenation and replication, logical
+operators, `case`/`casex` behaviour with 4-state selectors, clocked counters,
+edge-polarity semantics, FSMs, hierarchy (two levels, parameter override per
+instance), declaration initialisers, signed arithmetic and mixed-signedness
+comparisons, 64-bit wrap-around, x/z propagation, `$display` formats and
+reset styles. See [conformance/REPORT.md](conformance/REPORT.md) for the
+generated per-design table and [conformance/REPORT.json](conformance/report.json)
+for machine-readable results.
+
+Reproduce it with:
+
+```sh
+python conformance/run_conformance.py            # uses iverilog from PATH or the default path
+python conformance/run_conformance.py --json conformance/report.json
+```
+
+## Quick start
+
+Build the CLI:
+
+```sh
+moon build src/cmd --target native
+# artifact: _build/native/debug/build/src/cmd/cmd.exe
+```
+
+Simulate a design and dump a waveform:
+
+```sh
+_build/native/debug/build/src/cmd/cmd.exe run examples/wave.v --top wave_tb \
+    --vcd web/demo.vcd --max-time 200
+```
+
+Then open `web/index.html`, press **load demo trace**, and you get the
+waveform view shown at the top of this file. The viewer is a single static
+HTML file with no dependencies; drop any `.vcd` on it to inspect that instead.
+
+## Examples
+
+| File | Shows |
+| --- | --- |
+| `examples/counter.v` | clocked counter with carry, `posedge`, `$display` |
+| `examples/alu.v` | combinational arithmetic and logic |
+| `examples/hier.v` | module instantiation and port binding |
+| `examples/traffic.v` | localparams, clocked `case`, combinational `case` |
+| `examples/wave.v` | counter + shift register + FSM, used by the web demo |
+
+## Design
+
+```
+src/value/      four-state bit vectors, arithmetic, comparisons, formatting
+src/ast/        HDL syntax tree
+src/lexer/      tokenizer
+src/parser/     recursive-descent Verilog-2001 parser
+src/elaborate/  hierarchy flattening, parameters, port binding, widths
+src/sim/        evaluator, event scheduler, statement execution, state
+src/vcd/        Value Change Dump writer
+src/cmd/        command line interface
+web/            dependency-free waveform viewer + demo trace
+conformance/    40 self-checking designs and the differential runner
+```
+
+The four-state encoding keeps three bit planes per value (`val`, `unk`, `zed`)
+in a 64-bit word, so a signal is one machine word and the arithmetic primitives
+stay branch-light. Elaboration flattens the hierarchy into a single net table
+with dotted names, which keeps the kernel free of tree walks. The scheduler is
+stratified: run ready processes, commit non-blocking assignments, settle
+combinational logic to a fixpoint, then propagate edges — a design that
+oscillates is cut off after 1000 delta rounds rather than hanging.
+
+More detail in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Tests
+
+```sh
+moon test                      # 33 unit tests across value/lexer/parser/elaborate/sim
+python conformance/run_conformance.py
+```
+
+## Roadmap
+
+* `casez`/`casex` with wildcard matching, `function`/`task` execution.
+* Memories (`reg [7:0] mem [0:1023]`) and part-select writes on memories.
+* Multi-clock domain warnings, X-checking lint pass.
+* `--trace-vcd` streaming and a wasm-gc build of the viewer core so the
+  browser can simulate directly instead of reading a dump.
 
 ## License
 
