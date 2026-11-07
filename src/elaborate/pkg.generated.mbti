@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "moonvsim/moonvsim/src/elaborate"
+
+import {
+  "moonvsim/moonvsim/src/ast",
+  "moonvsim/moonvsim/src/value",
+}
+
+// Values
+pub fn[V] assoc_find(Array[(String, V)], String) -> V?
+
+pub fn elaborate(@ast.Design) -> Netlist
+
+pub fn elaborate_top(@ast.Design, String) -> Netlist
+
+// Errors
+
+// Types and methods
+pub(all) struct Netlist {
+  sigs : Array[Sig]
+  scopes : Array[Scope]
+  assigns : Array[@ast.ContAssign]
+  assign_scope : Array[Int32]
+  procs : Array[Proc]
+  errors : Array[String]
+}
+
+pub(all) struct Proc {
+  scope : Int32
+  kind : @ast.ProcessKind
+  body : @ast.Stmt
+}
+
+pub(all) struct Scope {
+  prefix : String
+  parent : Int32
+  vars : Array[(String, Int32)]
+  consts : Array[(String, @value.Bits)]
+  funcs : Array[@ast.Function]
+}
+
+pub(all) struct Sig {
+  name : String
+  width : Int32
+  signed : Bool
+}
+
+// Type aliases
+
+// Traits

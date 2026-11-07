@@ -641,3 +641,27 @@ pub fn Bits::same_bits(self : Bits, other : Bits) -> Bool {
   self.unk == other.unk &&
   self.zed == other.zed
 }
+
+/// Exponentiation by squaring; the result width is the wider operand.
+pub fn Bits::bpow(self : Bits, other : Bits) -> Bits {
+  let w = if self.width >= other.width { self.width } else { other.width }
+  if !self.is_known() || !other.is_known() {
+    return Bits::all_x(w)
+  }
+  let mut base = self.resize(w)
+  let mut acc = Bits::from_uint(1UL, w)
+  let mut n = other.to_uint64()
+  while n > 0UL {
+    if (n & 1UL) == 1UL {
+      acc = acc.bmul(base)
+    }
+    base = base.bmul(base)
+    n = n >> 1
+  }
+  acc
+}
+
+/// Value as a 32-bit integer, truncating.
+pub fn Bits::to_int(self : Bits) -> Int32 {
+  (self.val & mask_of(32)).reinterpret_as_int64().to_int()
+}

@@ -49,6 +49,7 @@ pub fn Bits::bne(Self, Self) -> Self
 pub fn Bits::bneg(Self) -> Self
 pub fn Bits::bnot(Self) -> Self
 pub fn Bits::bor(Self, Self) -> Self
+pub fn Bits::bpow(Self, Self) -> Self
 pub fn Bits::bshl(Self, Self) -> Self
 pub fn Bits::bshr(Self, Self) -> Self
 pub fn Bits::bsub(Self, Self) -> Self
@@ -80,6 +81,7 @@ pub fn Bits::set_part(Self, Int32, Int32, Self) -> Self
 pub fn Bits::to_bin_string(Self) -> String
 pub fn Bits::to_dec_string(Self) -> String
 pub fn Bits::to_hex_string(Self) -> String
+pub fn Bits::to_int(Self) -> Int32
 pub fn Bits::to_int64(Self) -> Int64
 pub fn Bits::to_oct_string(Self) -> String
 pub fn Bits::to_uint64(Self) -> UInt64

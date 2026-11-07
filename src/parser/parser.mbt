@@ -733,10 +733,7 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
     } else if self.eat_kw("parameter") || self.eat_kw("localparam") {
       self.parse_params(params)
     } else if self.at_kw("input") || self.at_kw("output") || self.at_kw("inout") {
-      vars.push(self.parse_port_as_var())
-      if self.at(",") {
-        self.advance()
-      }
+      port_decls.push(self.parse_body_port())
     } else if self.at_kw("wire") ||
       self.at_kw("reg") ||
       self.at_kw("integer") ||
@@ -787,7 +784,7 @@ fn Parser::parse_port_decl(self : Parser) -> @ast.Port {
   { dir: dir, range: range, names: names }
 }
 
-fn Parser::parse_port_as_var(self : Parser) -> @ast.VarDecl {
+fn Parser::parse_body_port(self : Parser) -> @ast.Port {
   let dir = if self.eat_kw("input") {
     @ast.Input
   } else if self.eat_kw("output") {
@@ -796,16 +793,11 @@ fn Parser::parse_port_as_var(self : Parser) -> @ast.VarDecl {
     self.eat_kw("inout") |> ignore
     @ast.Inout
   }
-  let _ = dir
+  self.eat_kw("reg") |> ignore
+  self.eat_kw("wire") |> ignore
   let range = self.parse_range()
-  let kind = if self.at_kw("reg") {
+  if self.at_kw("reg") || self.at_kw("wire") {
     self.advance()
-    @ast.Reg
-  } else if self.at_kw("wire") {
-    self.advance()
-    @ast.Wire
-  } else {
-    @ast.Wire
   }
   let names : Array[String] = []
   let mut go = true
@@ -820,7 +812,7 @@ fn Parser::parse_port_as_var(self : Parser) -> @ast.VarDecl {
     }
   }
   self.expect(";")
-  { kind: kind, range: range, names: names, init: None }
+  { dir: dir, range: range, names: names }
 }
 
 fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
