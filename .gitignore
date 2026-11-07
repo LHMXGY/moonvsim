@@ -10,3 +10,4 @@ _test_artifacts/
 pkg.generated.mbti
 *.vvp
 conformance/*.log
+__pycache__/
