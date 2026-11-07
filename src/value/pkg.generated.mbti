@@ -19,7 +19,7 @@ pub fn signed_value(Bits, Int32) -> Int64
 // Errors
 
 // Types and methods
-pub struct Bits {
+pub(all) struct Bits {
   width : Int32
   val : UInt64
   unk : UInt64
@@ -87,7 +87,7 @@ pub fn Bits::truth(Self) -> Bool?
 pub fn Bits::with_signed(Self, Bool) -> Self
 pub fn Bits::zero(Int32) -> Self
 
-pub enum Logic {
+pub(all) enum Logic {
   Zero
   One
   X

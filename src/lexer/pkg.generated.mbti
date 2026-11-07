@@ -11,7 +11,7 @@ pub fn tokenize(String) -> (Array[Token], Array[String])
 // Errors
 
 // Types and methods
-pub struct Lexer {
+pub(all) struct Lexer {
   src : String
   mut pos : Int32
   mut line : Int32
@@ -20,13 +20,13 @@ pub struct Lexer {
 }
 pub fn Lexer::new(String) -> Self
 
-pub struct Token {
+pub(all) struct Token {
   kind : TokenKind
   line : Int32
   col : Int32
 }
 
-pub enum TokenKind {
+pub(all) enum TokenKind {
   Ident(String)
   Number(@value.Bits)
   Str(String)

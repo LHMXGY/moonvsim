@@ -1,18 +1,18 @@
 // Abstract syntax tree for the Verilog-2001 synthesizable subset.
 
 /// Source position, 1-based.
-pub struct Pos {
+pub(all) struct Pos {
   line : Int32
   col : Int32
 }
 
 /// A resolved numeric literal: width plus four-state value.
-pub struct Lit {
+pub(all) struct Lit {
   bits : @value.Bits
 }
 
 /// Unary operators.
-pub enum UnOp {
+pub(all) enum UnOp {
   Plus
   Minus
   Not // !
@@ -23,7 +23,7 @@ pub enum UnOp {
 }
 
 /// Binary operators, in Verilog spelling for diagnostics.
-pub enum BinOp {
+pub(all) enum BinOp {
   Add // +
   Sub // -
   Mul // *
@@ -50,7 +50,7 @@ pub enum BinOp {
 }
 
 /// Expressions.
-pub enum Expr {
+pub(all) enum Expr {
   Number(Lit)
   Ident(String)
   /// `name[index]`
@@ -70,39 +70,39 @@ pub enum Expr {
 }
 
 /// An assignable target.
-pub struct LValue {
+pub(all) struct LValue {
   name : String
   sel : Sel
 }
 
 /// Sub-selection of an lvalue.
-pub enum Sel {
+pub(all) enum Sel {
   Whole
   Bit(Expr)
   Part(Expr, Expr)
 }
 
 /// Assignment flavour.
-pub enum AssignKind {
+pub(all) enum AssignKind {
   Blocking
   NonBlocking
 }
 
 /// Sensitivity / control events.
-pub enum EventEdge {
+pub(all) enum EventEdge {
   Any
   PosEdge
   NegEdge
 }
 
 /// One entry in a sensitivity list.
-pub struct EventSpec {
+pub(all) struct EventSpec {
   edge : EventEdge
   expr : Expr
 }
 
 /// Statements.
-pub enum Stmt {
+pub(all) enum Stmt {
   Null
   Block(Array[Stmt])
   /// `lhs = rhs;` / `lhs <= rhs;`
@@ -123,20 +123,20 @@ pub enum Stmt {
 }
 
 /// One arm of a case statement.  `None` means `default`.
-pub struct CaseArm {
+pub(all) struct CaseArm {
   labels : Array[Expr]? // None = default
   body : Stmt
 }
 
 /// Port direction.
-pub enum Dir {
+pub(all) enum Dir {
   Input
   Output
   Inout
 }
 
 /// Port declaration inside the module header or body.
-pub struct Port {
+pub(all) struct Port {
   dir : Dir
   /// Declared range, `None` for a 1-bit port.
   range : (Expr, Expr)?
@@ -144,14 +144,14 @@ pub struct Port {
 }
 
 /// `wire`/`reg`/`integer` declaration.
-pub enum VarKind {
+pub(all) enum VarKind {
   Wire
   Reg
   Integer
   Logic
 }
 
-pub struct VarDecl {
+pub(all) struct VarDecl {
   kind : VarKind
   range : (Expr, Expr)?
   names : Array[String]
@@ -159,26 +159,26 @@ pub struct VarDecl {
 }
 
 /// `parameter NAME = expr;`
-pub struct ParamDecl {
+pub(all) struct ParamDecl {
   range : (Expr, Expr)?
   name : String
   value : Expr
 }
 
 /// Continuous assignment.
-pub struct ContAssign {
+pub(all) struct ContAssign {
   lhs : LValue
   rhs : Expr
 }
 
 /// A named port connection on an instance.
-pub struct PortConn {
+pub(all) struct PortConn {
   name : String?
   expr : Expr?
 }
 
 /// Module instantiation.
-pub struct Instance {
+pub(all) struct Instance {
   module_name : String
   instance_name : String
   params : Array[(String?, Expr)]
@@ -186,19 +186,19 @@ pub struct Instance {
 }
 
 /// `always` / `initial` process.
-pub enum ProcessKind {
+pub(all) enum ProcessKind {
   Always(Array[EventSpec])
   AlwaysComb
   Initial
 }
 
-pub struct Process {
+pub(all) struct Process {
   kind : ProcessKind
   body : Stmt
 }
 
 /// A user function.
-pub struct Function {
+pub(all) struct Function {
   name : String
   ret_range : (Expr, Expr)?
   inputs : Array[VarDecl]
@@ -206,7 +206,7 @@ pub struct Function {
 }
 
 /// A complete module.
-pub struct Module {
+pub(all) struct Module {
   name : String
   params : Array[ParamDecl]
   ports : Array[Port]
@@ -218,6 +218,6 @@ pub struct Module {
 }
 
 /// A parsed source file.
-pub struct Design {
+pub(all) struct Design {
   modules : Array[Module]
 }

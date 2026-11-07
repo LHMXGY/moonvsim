@@ -2,7 +2,7 @@
 // Four-state (0/1/x/z) bit vectors up to 64 bits wide.
 
 /// The four logic values of a Verilog net or variable.
-pub enum Logic {
+pub(all) enum Logic {
   Zero
   One
   X
@@ -37,7 +37,7 @@ fn n64(x : UInt64) -> UInt64 {
 /// `val` holds the bits that are known to be 1, `unk` holds the bits that are
 /// not known to be 0 or 1, and `zed` is the subset of `unk` that is high
 /// impedance instead of unknown.  Bits above `width` are always zero.
-pub struct Bits {
+pub(all) struct Bits {
   width : Int32
   val : UInt64
   unk : UInt64

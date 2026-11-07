@@ -1,7 +1,7 @@
 // Verilog-2001 tokenizer.
 
 /// Token kinds produced by the lexer.
-pub enum TokenKind {
+pub(all) enum TokenKind {
   Ident(String)
   Number(@value.Bits)
   Str(String)
@@ -10,14 +10,14 @@ pub enum TokenKind {
 }
 
 /// A token with its 1-based source position.
-pub struct Token {
+pub(all) struct Token {
   kind : TokenKind
   line : Int32
   col : Int32
 }
 
 /// Streaming lexer state.
-pub struct Lexer {
+pub(all) struct Lexer {
   src : String
   mut pos : Int32
   mut line : Int32
@@ -113,7 +113,7 @@ fn Lexer::skip_trivia(self : Lexer) -> Unit {
     if self.peek() == Some('/') {
       match self.peek_at(1) {
         Some('/') => {
-          while self.peek() != Some('\n') && self.peek().is_some() {
+          while self.peek() != Some('\n') && self.peek() is Some(_) {
             self.bump()
           }
           again = true

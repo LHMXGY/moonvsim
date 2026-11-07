@@ -10,12 +10,12 @@ import {
 // Errors
 
 // Types and methods
-pub enum AssignKind {
+pub(all) enum AssignKind {
   Blocking
   NonBlocking
 }
 
-pub enum BinOp {
+pub(all) enum BinOp {
   Add
   Sub
   Mul
@@ -41,38 +41,38 @@ pub enum BinOp {
   Ashr
 }
 
-pub struct CaseArm {
+pub(all) struct CaseArm {
   labels : Array[Expr]?
   body : Stmt
 }
 
-pub struct ContAssign {
+pub(all) struct ContAssign {
   lhs : LValue
   rhs : Expr
 }
 
-pub struct Design {
+pub(all) struct Design {
   modules : Array[Module]
 }
 
-pub enum Dir {
+pub(all) enum Dir {
   Input
   Output
   Inout
 }
 
-pub enum EventEdge {
+pub(all) enum EventEdge {
   Any
   PosEdge
   NegEdge
 }
 
-pub struct EventSpec {
+pub(all) struct EventSpec {
   edge : EventEdge
   expr : Expr
 }
 
-pub enum Expr {
+pub(all) enum Expr {
   Number(Lit)
   Ident(String)
   BitSel(Expr, Expr)
@@ -86,30 +86,30 @@ pub enum Expr {
   Str(String)
 }
 
-pub struct Function {
+pub(all) struct Function {
   name : String
   ret_range : (Expr, Expr)?
   inputs : Array[VarDecl]
   body : Stmt
 }
 
-pub struct Instance {
+pub(all) struct Instance {
   module_name : String
   instance_name : String
   params : Array[(String?, Expr)]
   ports : Array[PortConn]
 }
 
-pub struct LValue {
+pub(all) struct LValue {
   name : String
   sel : Sel
 }
 
-pub struct Lit {
+pub(all) struct Lit {
   bits : @value.Bits
 }
 
-pub struct Module {
+pub(all) struct Module {
   name : String
   params : Array[ParamDecl]
   ports : Array[Port]
@@ -120,46 +120,46 @@ pub struct Module {
   functions : Array[Function]
 }
 
-pub struct ParamDecl {
+pub(all) struct ParamDecl {
   range : (Expr, Expr)?
   name : String
   value : Expr
 }
 
-pub struct Port {
+pub(all) struct Port {
   dir : Dir
   range : (Expr, Expr)?
   names : Array[String]
 }
 
-pub struct PortConn {
+pub(all) struct PortConn {
   name : String?
   expr : Expr?
 }
 
-pub struct Pos {
+pub(all) struct Pos {
   line : Int32
   col : Int32
 }
 
-pub struct Process {
+pub(all) struct Process {
   kind : ProcessKind
   body : Stmt
 }
 
-pub enum ProcessKind {
+pub(all) enum ProcessKind {
   Always(Array[EventSpec])
   AlwaysComb
   Initial
 }
 
-pub enum Sel {
+pub(all) enum Sel {
   Whole
   Bit(Expr)
   Part(Expr, Expr)
 }
 
-pub enum Stmt {
+pub(all) enum Stmt {
   Null
   Block(Array[Stmt])
   Assign(AssignKind, LValue, Expr)
@@ -174,7 +174,7 @@ pub enum Stmt {
   Disable(String)
 }
 
-pub enum UnOp {
+pub(all) enum UnOp {
   Plus
   Minus
   Not
@@ -184,14 +184,14 @@ pub enum UnOp {
   RedXor
 }
 
-pub struct VarDecl {
+pub(all) struct VarDecl {
   kind : VarKind
   range : (Expr, Expr)?
   names : Array[String]
   init : Expr?
 }
 
-pub enum VarKind {
+pub(all) enum VarKind {
   Wire
   Reg
   Integer
