@@ -39,6 +39,21 @@ jobs:
         run: moon build src/cmd --target native --release
 
       - name: Differential conformance against iverilog
-        run: |
-          python3 conformance/run_conformance.py \
-            --moonvsim _build/native/release/build/src/cmd/cmd.exe
+        run: python3 conformance/run_conformance.py
+
+      - name: Show the conformance report
+        if: always()
+        run: cat conformance/REPORT.md || true
+
+      - name: Upload the conformance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-report
+          path: |
+            conformance/report.json
+            conformance/REPORT.md
+          if-no-files-found: warn
+
+      - name: Throughput benchmark
+        run: python3 bench/run_bench.py --repeat 1
