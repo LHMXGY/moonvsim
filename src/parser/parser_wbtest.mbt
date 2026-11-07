@@ -1,8 +1,8 @@
 // Parser tests: each source snippet exercises one syntactic feature.
 
+///|
 test "parse ansi port module" {
-  let src =
-    "module top(input clk, input rst, output reg [3:0] q);\n" +
+  let src = "module top(input clk, input rst, output reg [3:0] q);\n" +
     "  always @(posedge clk or negedge rst) begin\n" +
     "    if (!rst) q <= 4'd0;\n" +
     "    else q <= q + 1'b1;\n" +
@@ -21,9 +21,9 @@ test "parse ansi port module" {
   }
 }
 
+///|
 test "parse non-ansi ports and continuous assigns" {
-  let src =
-    "module and2(a, b, y);\n" +
+  let src = "module and2(a, b, y);\n" +
     "  input a;\n" +
     "  input b;\n" +
     "  output y;\n" +
@@ -36,9 +36,9 @@ test "parse non-ansi ports and continuous assigns" {
   inspect(m.assigns.length(), content="1")
 }
 
+///|
 test "parse case, for and repeat statements" {
-  let src =
-    "module m(input [1:0] s, output reg [3:0] y);\n" +
+  let src = "module m(input [1:0] s, output reg [3:0] y);\n" +
     "  integer i;\n" +
     "  always @(*) begin\n" +
     "    case (s)\n" +
@@ -62,9 +62,9 @@ test "parse case, for and repeat statements" {
   }
 }
 
+///|
 test "parse function and instance with parameter override" {
-  let src =
-    "module add #(parameter W = 8) (input [W-1:0] a, input [W-1:0] b, output [W-1:0] s);\n" +
+  let src = "module add #(parameter W = 8) (input [W-1:0] a, input [W-1:0] b, output [W-1:0] s);\n" +
     "  assign s = a + b;\n" +
     "endmodule\n" +
     "module top(input [7:0] x, input [7:0] y, output [7:0] z);\n" +
@@ -81,9 +81,9 @@ test "parse function and instance with parameter override" {
   inspect(top.instances[0].ports.length(), content="3")
 }
 
+///|
 test "parse expressions with precedence and concat" {
-  let src =
-    "module m;\n" +
+  let src = "module m;\n" +
     "  wire [7:0] a;\n" +
     "  assign a = {4'hf, 4'b0000} & 8'h0f | 8'h10;\n" +
     "endmodule\n"
@@ -95,6 +95,7 @@ test "parse expressions with precedence and concat" {
   }
 }
 
+///|
 test "reports a syntax error instead of looping" {
   let src = "module broken(input a)\n  assign a = ;\nendmodule\n"
   let (_, errs) = parse(src)

@@ -1,5 +1,6 @@
 // End-to-end engine tests: parse -> elaborate -> simulate.
 
+///|
 fn build(src : String) -> (@elaborate.Netlist, Sim) raise {
   let (design, errs) = @parser.parse(src)
   if errs.length() > 0 {
@@ -9,7 +10,13 @@ fn build(src : String) -> (@elaborate.Netlist, Sim) raise {
   (net, Sim::new(net))
 }
 
-fn expect_u64(sim : Sim, net : @elaborate.Netlist, name : String, want : UInt64) -> Unit raise {
+///|
+fn expect_u64(
+  sim : Sim,
+  net : @elaborate.Netlist,
+  name : String,
+  want : UInt64,
+) -> Unit raise {
   match @elaborate.find_sig(net, name) {
     Some(id) => {
       let got = sim.read(id)
@@ -24,6 +31,7 @@ fn expect_u64(sim : Sim, net : @elaborate.Netlist, name : String, want : UInt64)
   }
 }
 
+///|
 test "clocked counter increments on posedge" {
   let src =
     #|module top;
@@ -43,6 +51,7 @@ test "clocked counter increments on posedge" {
   expect_u64(sim, net, "q", 5UL)
 }
 
+///|
 test "continuous assign adds with carry" {
   let src =
     #|module top;
@@ -60,15 +69,15 @@ test "continuous assign adds with carry" {
   expect_u64(sim, net, "a", 255UL)
   expect_u64(sim, net, "b", 1UL)
   match @elaborate.find_sig(net, "s") {
-    Some(id) => {
+    Some(id) =>
       if sim.read(id).to_uint64() != 256UL {
         fail("s = \{sim.read(id).to_dec_string()}, want 256")
       }
-    }
     None => fail("no signal s")
   }
 }
 
+///|
 test "non-blocking swap is atomic" {
   let src =
     #|module top;
@@ -87,6 +96,7 @@ test "non-blocking swap is atomic" {
   expect_u64(sim, net, "b", 0UL)
 }
 
+///|
 test "$display records formatted output" {
   let src =
     #|module top;

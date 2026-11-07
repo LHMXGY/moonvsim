@@ -5,6 +5,7 @@
 // operand *or* the context, which is what makes `assign s[8:0] = a + b` keep
 // the carry out of an 8-bit add.
 
+///|
 fn max3(a : Int32, b : Int32, c : Int32) -> Int32 {
   let mut m = a
   if b > m {
@@ -16,6 +17,7 @@ fn max3(a : Int32, b : Int32, c : Int32) -> Int32 {
   m
 }
 
+///|
 fn Sim::width_of(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
   match e {
     @ast.Number(l) => l.bits.width
@@ -43,8 +45,16 @@ fn Sim::width_of(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
       }
     @ast.Binary(op, a, b) =>
       match op {
-        @ast.LogAnd | @ast.LogOr | @ast.Eq | @ast.Ne | @ast.CaseEq | @ast.CaseNe | @ast.Lt | @ast.Le | @ast.Gt | @ast.Ge =>
-          1
+        @ast.LogAnd
+        | @ast.LogOr
+        | @ast.Eq
+        | @ast.Ne
+        | @ast.CaseEq
+        | @ast.CaseNe
+        | @ast.Lt
+        | @ast.Le
+        | @ast.Gt
+        | @ast.Ge => 1
         @ast.Shl | @ast.Shr | @ast.Ashr => self.width_of(scope, a)
         _ => {
           let wa = self.width_of(scope, a)
@@ -98,6 +108,7 @@ fn Sim::width_of(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
   }
 }
 
+///|
 /// Look up a parameter visible from `scope`.
 fn Sim::const_of(self : Sim, scope : Int32, name : String) -> @value.Bits? {
   let mut sid = scope
@@ -110,6 +121,7 @@ fn Sim::const_of(self : Sim, scope : Int32, name : String) -> @value.Bits? {
   None
 }
 
+///|
 fn widen(v : @value.Bits, ctx : Int32) -> @value.Bits {
   if ctx > v.width {
     v.resize(ctx)
@@ -118,7 +130,13 @@ fn widen(v : @value.Bits, ctx : Int32) -> @value.Bits {
   }
 }
 
-fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bits {
+///|
+fn Sim::eval(
+  self : Sim,
+  scope : Int32,
+  e : @ast.Expr,
+  ctx : Int32,
+) -> @value.Bits {
   match e {
     @ast.Number(l) => widen(l.bits, ctx)
     @ast.Str(s) => @value.Bits::from_bytes_string(s)
@@ -137,9 +155,7 @@ fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bi
         None =>
           match self.const_of(scope, n) {
             Some(b) => widen(b, ctx)
-            None => {
-              @value.Bits::all_x(ctx)
-            }
+            None => @value.Bits::all_x(ctx)
           }
       }
     @ast.BitSel(base, idx) => {
@@ -178,12 +194,28 @@ fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bi
           let av = self.eval(scope, a, w)
           let sh = self.eval_int(scope, b)
           match op {
-            @ast.Shl => av.bshl(@value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32))
-            @ast.Shr => av.bshr(@value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32))
-            _ => av.bashr(@value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32))
+            @ast.Shl =>
+              av.bshl(
+                @value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32),
+              )
+            @ast.Shr =>
+              av.bshr(
+                @value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32),
+              )
+            _ =>
+              av.bashr(
+                @value.Bits::from_uint(sh.reinterpret_as_uint().to_uint64(), 32),
+              )
           }
         }
-        @ast.Eq | @ast.Ne | @ast.CaseEq | @ast.CaseNe | @ast.Lt | @ast.Le | @ast.Gt | @ast.Ge => {
+        @ast.Eq
+        | @ast.Ne
+        | @ast.CaseEq
+        | @ast.CaseNe
+        | @ast.Lt
+        | @ast.Le
+        | @ast.Gt
+        | @ast.Ge => {
           let wa = self.width_of(scope, a)
           let wb = self.width_of(scope, b)
           let w = if wa >= wb { wa } else { wb }
@@ -253,7 +285,7 @@ fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bi
       }
       widen(acc, ctx)
     }
-    @ast.Call(name, args) => {
+    @ast.Call(name, args) =>
       match (name, args) {
         ("$signed", [a, ..]) => {
           let w = self.width_of(scope, a)
@@ -275,12 +307,17 @@ fn Sim::eval(self : Sim, scope : Int32, e : @ast.Expr, ctx : Int32) -> @value.Bi
         }
         (_, _) => @value.Bits::all_x(ctx)
       }
-    }
   }
 }
 
+///|
 /// Evaluate and truncate to `width`, as an assignment does.
-pub fn Sim::eval_sized(self : Sim, scope : Int32, e : @ast.Expr, width : Int32) -> @value.Bits {
+pub fn Sim::eval_sized(
+  self : Sim,
+  scope : Int32,
+  e : @ast.Expr,
+  width : Int32,
+) -> @value.Bits {
   let v = self.eval(scope, e, width)
   if v.width == width {
     v

@@ -1,5 +1,6 @@
 // Elaboration tests: hierarchy flattening, parameter propagation, ports.
 
+///|
 fn widths(n : Netlist) -> Array[Int32] {
   let out : Array[Int32] = []
   for s in n.sigs {
@@ -8,9 +9,9 @@ fn widths(n : Netlist) -> Array[Int32] {
   out
 }
 
+///|
 test "elaborates a single module" {
-  let src =
-    "module top(input [7:0] a, input [7:0] b, output [8:0] s);\n" +
+  let src = "module top(input [7:0] a, input [7:0] b, output [8:0] s);\n" +
     "  wire [7:0] t;\n" +
     "  assign t = a & b;\n" +
     "  assign s = {1'b0, t};\n" +
@@ -25,9 +26,9 @@ test "elaborates a single module" {
   inspect(n.procs.length(), content="0")
 }
 
+///|
 test "flattens an instance and connects its ports" {
-  let src =
-    "module add #(parameter W = 8)(input [W-1:0] a, input [W-1:0] b, output [W-1:0] s);\n" +
+  let src = "module add #(parameter W = 8)(input [W-1:0] a, input [W-1:0] b, output [W-1:0] s);\n" +
     "  assign s = a + b;\n" +
     "endmodule\n" +
     "module top(input [7:0] x, input [7:0] y, output [7:0] z);\n" +
@@ -47,9 +48,9 @@ test "flattens an instance and connects its ports" {
   inspect(n.scopes.length(), content="2")
 }
 
+///|
 test "parameter override changes child widths" {
-  let src =
-    "module inv #(parameter W = 4)(input [W-1:0] a, output [W-1:0] y);\n" +
+  let src = "module inv #(parameter W = 4)(input [W-1:0] a, output [W-1:0] y);\n" +
     "  assign y = ~a;\n" +
     "endmodule\n" +
     "module top(input [15:0] a16, output [15:0] y16);\n" +
@@ -67,9 +68,9 @@ test "parameter override changes child widths" {
   inspect(child_width, content="16")
 }
 
+///|
 test "reports an unknown module" {
-  let src =
-    "module top(input a, output y);\n" +
+  let src = "module top(input a, output y);\n" +
     "  missing u (.a(a), .y(y));\n" +
     "endmodule\n"
   let (d, _) = @parser.parse(src)
@@ -77,6 +78,7 @@ test "reports an unknown module" {
   inspect(n.errors.length(), content="1")
 }
 
+///|
 test "negative ranges keep their width" {
   let src = "module top(input [3:0] a);\n  wire [0:7] b;\n  assign b = a;\nendmodule\n"
   let (d, _) = @parser.parse(src)

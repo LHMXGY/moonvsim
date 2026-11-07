@@ -1,5 +1,5 @@
 import {
-  "moonvsim/moonvsim/src/ast" @ast,
-  "moonvsim/moonvsim/src/lexer" @lexer,
-  "moonvsim/moonvsim/src/value" @value,
+  "moonvsim/moonvsim/src/ast",
+  "moonvsim/moonvsim/src/lexer",
+  "moonvsim/moonvsim/src/value",
 }

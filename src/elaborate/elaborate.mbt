@@ -5,6 +5,7 @@
 // continuous assignments, which keeps the simulator free of hierarchy logic:
 // it only ever sees top-level nets and top-level processes.
 
+///|
 /// A lexical scope introduced by one module instance.
 pub(all) struct Scope {
   prefix : String
@@ -14,6 +15,7 @@ pub(all) struct Scope {
   funcs : Array[@ast.Function]
 }
 
+///|
 /// A flattened net.
 pub(all) struct Sig {
   name : String
@@ -21,6 +23,7 @@ pub(all) struct Sig {
   signed : Bool
 }
 
+///|
 /// A flattened process (`always` / `initial`).
 pub(all) struct Proc {
   scope : Int32
@@ -28,6 +31,7 @@ pub(all) struct Proc {
   body : @ast.Stmt
 }
 
+///|
 /// The elaborated design.
 pub(all) struct Netlist {
   sigs : Array[Sig]
@@ -38,6 +42,7 @@ pub(all) struct Netlist {
   errors : Array[String]
 }
 
+///|
 /// Look up a key in a small association list.
 pub fn[V] assoc_find(xs : Array[(String, V)], k : String) -> V? {
   for p in xs {
@@ -48,6 +53,7 @@ pub fn[V] assoc_find(xs : Array[(String, V)], k : String) -> V? {
   None
 }
 
+///|
 /// Replace (or append) a key in a small association list.
 fn[V] assoc_set(xs : Array[(String, V)], k : String, v : V) -> Unit {
   let mut i = 0
@@ -61,6 +67,7 @@ fn[V] assoc_set(xs : Array[(String, V)], k : String, v : V) -> Unit {
   xs.push((k, v))
 }
 
+///|
 priv struct Builder {
   sigs : Array[Sig]
   scopes : Array[Scope]
@@ -72,10 +79,12 @@ priv struct Builder {
   sigidx : Array[(String, Int32)]
 }
 
+///|
 pub fn elaborate(design : @ast.Design) -> Netlist {
   elaborate_top(design, "")
 }
 
+///|
 /// Elaborate `design` using `top_name`, or the module named `top`, or the last
 /// module when neither exists.
 pub fn elaborate_top(design : @ast.Design, top_name : String) -> Netlist {
@@ -107,6 +116,7 @@ pub fn elaborate_top(design : @ast.Design, top_name : String) -> Netlist {
   }
 }
 
+///|
 fn Builder::new(mods : Array[@ast.Module]) -> Builder {
   let tab : Array[(String, @ast.Module)] = []
   for m in mods {
@@ -128,7 +138,12 @@ fn Builder::new(mods : Array[@ast.Module]) -> Builder {
 // Constants
 // ---------------------------------------------------------------------------
 
-fn Builder::lookup_const(self : Builder, scope : Int32, name : String) -> @value.Bits? {
+///|
+fn Builder::lookup_const(
+  self : Builder,
+  scope : Int32,
+  name : String,
+) -> @value.Bits? {
   let mut sid = scope
   while sid >= 0 {
     match assoc_find(self.scopes[sid].consts, name) {
@@ -139,12 +154,17 @@ fn Builder::lookup_const(self : Builder, scope : Int32, name : String) -> @value
   None
 }
 
+///|
 /// Evaluate a constant expression, if it only depends on parameters.
-fn Builder::const_bits(self : Builder, scope : Int32, e : @ast.Expr) -> @value.Bits? {
+fn Builder::const_bits(
+  self : Builder,
+  scope : Int32,
+  e : @ast.Expr,
+) -> @value.Bits? {
   match e {
     @ast.Number(l) => Some(l.bits)
     @ast.Ident(n) => self.lookup_const(scope, n)
-    @ast.Unary(op, a) => {
+    @ast.Unary(op, a) =>
       match self.const_bits(scope, a) {
         Some(b) =>
           match op {
@@ -158,7 +178,6 @@ fn Builder::const_bits(self : Builder, scope : Int32, e : @ast.Expr) -> @value.B
           }
         None => None
       }
-    }
     @ast.Binary(op, a, b) =>
       match (self.const_bits(scope, a), self.const_bits(scope, b)) {
         (Some(x), Some(y)) =>
@@ -204,6 +223,7 @@ fn Builder::const_bits(self : Builder, scope : Int32, e : @ast.Expr) -> @value.B
   }
 }
 
+///|
 fn Builder::const_int(self : Builder, scope : Int32, e : @ast.Expr) -> Int32? {
   match self.const_bits(scope, e) {
     Some(b) => Some(b.to_int())
@@ -215,16 +235,27 @@ fn Builder::const_int(self : Builder, scope : Int32, e : @ast.Expr) -> Int32? {
 // Nets and scopes
 // ---------------------------------------------------------------------------
 
-fn Builder::add_sig(self : Builder, name : String, width : Int32, signed : Bool) -> Int32 {
+///|
+fn Builder::add_sig(
+  self : Builder,
+  name : String,
+  width : Int32,
+  signed : Bool,
+) -> Int32 {
   let w = if width < 1 { 1 } else { width }
   let id = self.sigs.length()
-  self.sigs.push({ name: name, width: w, signed: signed })
+  self.sigs.push({ name, width: w, signed, })
   assoc_set(self.sigidx, name, id)
   id
 }
 
+///|
 /// Resolve the width of a declared range such as `[7:0]` or `[W-1:0]`.
-fn Builder::range_width(self : Builder, scope : Int32, r : (@ast.Expr, @ast.Expr)?) -> Int32 {
+fn Builder::range_width(
+  self : Builder,
+  scope : Int32,
+  r : (@ast.Expr, @ast.Expr)?,
+) -> Int32 {
   match r {
     None => 1
     Some((hi, lo)) =>
@@ -241,6 +272,7 @@ fn Builder::range_width(self : Builder, scope : Int32, r : (@ast.Expr, @ast.Expr
   }
 }
 
+///|
 fn var_kind_is_net(k : @ast.VarKind) -> Bool {
   match k {
     @ast.Wire | @ast.Logic => true
@@ -248,6 +280,7 @@ fn var_kind_is_net(k : @ast.VarKind) -> Bool {
   }
 }
 
+///|
 fn var_kind_is_integer(k : @ast.VarKind) -> Bool {
   match k {
     @ast.Integer => true
@@ -259,6 +292,7 @@ fn var_kind_is_integer(k : @ast.VarKind) -> Bool {
 // Module instantiation
 // ---------------------------------------------------------------------------
 
+///|
 fn Builder::elab_module(
   self : Builder,
   prefix : String,
@@ -268,13 +302,7 @@ fn Builder::elab_module(
   over_scope : Int32,
 ) -> Int32 {
   let sid = self.scopes.length()
-  let scope = {
-    prefix: prefix,
-    parent: parent,
-    vars: [],
-    consts: [],
-    funcs: m.functions,
-  }
+  let scope = { prefix, parent, vars: [], consts: [], funcs: m.functions, }
   self.scopes.push(scope)
 
   // Parameters: overrides first, then defaults.
@@ -283,10 +311,7 @@ fn Builder::elab_module(
     let mut chosen : @ast.Expr? = None
     for ov in overrides {
       match ov {
-        (Some(n), e) =>
-          if n == p.name {
-            chosen = Some(e)
-          }
+        (Some(n), e) => if n == p.name { chosen = Some(e) }
         (None, e) =>
           if pos == index_of_param(m.params, p.name) {
             chosen = Some(e)
@@ -299,7 +324,9 @@ fn Builder::elab_module(
         match self.const_bits(over_scope, e) {
           Some(b) => b
           None => {
-            self.errors.push("[elab] parameter '\{p.name}' override is not constant")
+            self.errors.push(
+              "[elab] parameter '\{p.name}' override is not constant",
+            )
             @value.Bits::zero(1)
           }
         }
@@ -307,7 +334,9 @@ fn Builder::elab_module(
         match self.const_bits(sid, p.value) {
           Some(b) => b
           None => {
-            self.errors.push("[elab] parameter '\{p.name}' default is not constant")
+            self.errors.push(
+              "[elab] parameter '\{p.name}' default is not constant",
+            )
             @value.Bits::zero(1)
           }
         }
@@ -341,20 +370,17 @@ fn Builder::elab_module(
   // described by IEEE 1364-2005 section 6.2.2.
   for v in m.vars {
     match v.init {
-      Some(e) => {
+      Some(e) =>
         if v.names.length() > 0 {
-          let lv : @ast.LValue = { name: v.names[0], sel: @ast.Whole }
+          let lv : @ast.LValue = { name: v.names[0], sel: @ast.Whole, }
           if var_kind_is_net(v.kind) {
-            self.assigns.push({ lhs: lv, rhs: e })
+            self.assigns.push({ lhs: lv, rhs: e, })
             self.assign_scope.push(sid)
           } else {
-            let body = @ast.Block([
-              @ast.Assign(@ast.Blocking, lv, e),
-            ])
-            self.procs.push({ scope: sid, kind: @ast.Initial, body: body })
+            let body = @ast.Block([@ast.Assign(@ast.Blocking, lv, e)])
+            self.procs.push({ scope: sid, kind: @ast.Initial, body, })
           }
         }
-      }
       None => ()
     }
   }
@@ -364,7 +390,7 @@ fn Builder::elab_module(
     self.assign_scope.push(sid)
   }
   for p in m.processes {
-    self.procs.push({ scope: sid, kind: p.kind, body: p.body })
+    self.procs.push({ scope: sid, kind: p.kind, body: p.body, })
   }
   for inst in m.instances {
     match assoc_find(self.modtab, inst.module_name) {
@@ -373,14 +399,13 @@ fn Builder::elab_module(
         let csid = self.elab_module(cprefix, child, sid, inst.params, sid)
         self.connect_ports(sid, csid, child, inst, cprefix)
       }
-      None => {
-        self.errors.push("[elab] unknown module '\{inst.module_name}'")
-      }
+      None => self.errors.push("[elab] unknown module '\{inst.module_name}'")
     }
   }
   sid
 }
 
+///|
 fn index_of_param(params : Array[@ast.ParamDecl], name : String) -> Int32 {
   let mut i = 0
   for p in params {
@@ -392,6 +417,7 @@ fn index_of_param(params : Array[@ast.ParamDecl], name : String) -> Int32 {
   -1
 }
 
+///|
 /// Insert the continuous assignments that bind an instance's ports.
 fn Builder::connect_ports(
   self : Builder,
@@ -414,7 +440,7 @@ fn Builder::connect_ports(
               match port.dir {
                 @ast.Input => {
                   self.assigns.push({
-                    lhs: { name: cprefix + name, sel: @ast.Whole },
+                    lhs: { name: cprefix + name, sel: @ast.Whole, },
                     rhs: e,
                   })
                   self.assign_scope.push(parent_scope)
@@ -422,14 +448,16 @@ fn Builder::connect_ports(
                 @ast.Output =>
                   match expr_to_lvalue(e) {
                     Some(lv) => {
-                      self.assigns.push({ lhs: lv, rhs: @ast.Ident(cprefix + name) })
+                      self.assigns.push({
+                        lhs: lv,
+                        rhs: @ast.Ident(cprefix + name),
+                      })
                       self.assign_scope.push(parent_scope)
                     }
-                    None => {
+                    None =>
                       self.errors.push(
                         "[elab] output port '\{name}' must connect to a net, not an expression",
                       )
-                    }
                   }
                 @ast.Inout => ()
               }
@@ -441,6 +469,7 @@ fn Builder::connect_ports(
   }
 }
 
+///|
 fn Builder::find_conn(
   self : Builder,
   inst : @ast.Instance,
@@ -450,10 +479,7 @@ fn Builder::find_conn(
   let _ = self
   for c in inst.ports {
     match c.name {
-      Some(n) =>
-        if n == name {
-          return Some(c)
-        }
+      Some(n) => if n == name { return Some(c) }
       None => ()
     }
   }
@@ -469,23 +495,25 @@ fn Builder::find_conn(
   None
 }
 
+///|
 fn expr_to_lvalue(e : @ast.Expr) -> @ast.LValue? {
   match e {
-    @ast.Ident(n) => Some({ name: n, sel: @ast.Whole })
+    @ast.Ident(n) => Some({ name: n, sel: @ast.Whole, })
     @ast.BitSel(base, idx) =>
       match base {
-        @ast.Ident(n) => Some({ name: n, sel: @ast.Bit(idx) })
+        @ast.Ident(n) => Some({ name: n, sel: @ast.Bit(idx), })
         _ => None
       }
     @ast.PartSel(base, hi, lo) =>
       match base {
-        @ast.Ident(n) => Some({ name: n, sel: @ast.Part(hi, lo) })
+        @ast.Ident(n) => Some({ name: n, sel: @ast.Part(hi, lo), })
         _ => None
       }
     _ => None
   }
 }
 
+///|
 /// Find a net by fully qualified name.
 pub fn find_sig(net : Netlist, name : String) -> Int32? {
   let mut i = 0

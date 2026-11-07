@@ -1,0 +1,44 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Install Icarus Verilog (conformance oracle)
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Toolchain version
+        run: moon version --all
+
+      - name: Update dependencies
+        run: moon update
+
+      - name: Unit tests
+        run: moon test
+
+      - name: Check all targets build
+        run: |
+          moon check --target wasm
+          moon check --target wasm-gc
+          moon check --target js
+
+      - name: Build the native CLI
+        run: moon build src/cmd --target native --release
+
+      - name: Differential conformance against iverilog
+        run: |
+          python3 conformance/run_conformance.py \
+            --moonvsim _build/native/release/build/src/cmd/cmd.exe

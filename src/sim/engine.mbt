@@ -5,6 +5,7 @@
 // `WaitDelay` / `WaitEdges`.  "Run until you block" then becomes a tiny
 // interpreter loop, and all delta-cycle bookkeeping lives in one place.
 
+///|
 pub(all) enum Op {
   Run(@ast.Stmt)
   WaitDelay(@ast.Expr)
@@ -14,6 +15,7 @@ pub(all) enum Op {
   Jump(Int32)
 }
 
+///|
 pub(all) struct Thread {
   scope : Int32
   ops : Array[Op]
@@ -25,17 +27,20 @@ pub(all) struct Thread {
   mut edge_modes : Array[Int32]
 }
 
+///|
 /// A combinational process re-run by the settle loop until nothing moves.
 pub(all) struct Comb {
   scope : Int32
   body : @ast.Stmt
 }
 
+///|
 pub(all) struct Lowered {
   threads : Array[Thread]
   combs : Array[Comb]
 }
 
+///|
 fn edge_mode(e : @ast.EventEdge) -> Int32 {
   match e {
     @ast.Any => 0
@@ -44,6 +49,7 @@ fn edge_mode(e : @ast.EventEdge) -> Int32 {
   }
 }
 
+///|
 fn resolve_specs(
   net : @elaborate.Netlist,
   scope : Int32,
@@ -67,8 +73,14 @@ fn resolve_specs(
   (sigs, modes)
 }
 
+///|
 /// Lower a statement; returns whether any wait op was emitted.
-fn lower_stmt(net : @elaborate.Netlist, scope : Int32, s : @ast.Stmt, ops : Array[Op]) -> Bool {
+fn lower_stmt(
+  net : @elaborate.Netlist,
+  scope : Int32,
+  s : @ast.Stmt,
+  ops : Array[Op],
+) -> Bool {
   match s {
     @ast.Null => false
     @ast.Block(items) => {
@@ -128,6 +140,7 @@ fn lower_stmt(net : @elaborate.Netlist, scope : Int32, s : @ast.Stmt, ops : Arra
   }
 }
 
+///|
 /// Lower every process of the netlist into threads plus the combinational
 /// processes that the settle loop must re-run.
 pub fn lower_all(net : @elaborate.Netlist) -> Lowered {
@@ -160,11 +173,11 @@ pub fn lower_all(net : @elaborate.Netlist) -> Lowered {
       _ => if has_wait { false } else { true }
     }
     if is_comb {
-      combs.push({ scope: p.scope, body: p.body })
+      combs.push({ scope: p.scope, body: p.body, })
     } else {
       threads.push({
         scope: p.scope,
-        ops: ops,
+        ops,
         pc: 0,
         waiting: 0,
         wait_time: 0L,
@@ -173,5 +186,5 @@ pub fn lower_all(net : @elaborate.Netlist) -> Lowered {
       })
     }
   }
-  { threads: threads, combs: combs }
+  { threads, combs, }
 }

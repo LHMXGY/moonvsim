@@ -1,8 +1,8 @@
 import {
-  "moonvsim/moonvsim/src/ast" @ast,
-  "moonvsim/moonvsim/src/value" @value,
+  "moonvsim/moonvsim/src/ast",
+  "moonvsim/moonvsim/src/value",
 }
 
 import {
-  "moonvsim/moonvsim/src/parser" @parser,
+  "moonvsim/moonvsim/src/parser",
 } for "wbtest"

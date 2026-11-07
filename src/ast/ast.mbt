@@ -1,16 +1,19 @@
 // Abstract syntax tree for the Verilog-2001 synthesizable subset.
 
+///|
 /// Source position, 1-based.
 pub(all) struct Pos {
   line : Int32
   col : Int32
 }
 
+///|
 /// A resolved numeric literal: width plus four-state value.
 pub(all) struct Lit {
   bits : @value.Bits
 }
 
+///|
 /// Unary operators.
 pub(all) enum UnOp {
   Plus
@@ -22,6 +25,7 @@ pub(all) enum UnOp {
   RedXor
 }
 
+///|
 /// Binary operators, in Verilog spelling for diagnostics.
 pub(all) enum BinOp {
   Add // +
@@ -49,6 +53,7 @@ pub(all) enum BinOp {
   Ashr // >>>
 }
 
+///|
 /// Expressions.
 pub(all) enum Expr {
   Number(Lit)
@@ -69,12 +74,14 @@ pub(all) enum Expr {
   Str(String)
 }
 
+///|
 /// An assignable target.
 pub(all) struct LValue {
   name : String
   sel : Sel
 }
 
+///|
 /// Sub-selection of an lvalue.
 pub(all) enum Sel {
   Whole
@@ -82,12 +89,14 @@ pub(all) enum Sel {
   Part(Expr, Expr)
 }
 
+///|
 /// Assignment flavour.
 pub(all) enum AssignKind {
   Blocking
   NonBlocking
 }
 
+///|
 /// Sensitivity / control events.
 pub(all) enum EventEdge {
   Any
@@ -95,12 +104,14 @@ pub(all) enum EventEdge {
   NegEdge
 }
 
+///|
 /// One entry in a sensitivity list.
 pub(all) struct EventSpec {
   edge : EventEdge
   expr : Expr
 }
 
+///|
 /// Statements.
 pub(all) enum Stmt {
   Null
@@ -122,12 +133,14 @@ pub(all) enum Stmt {
   Disable(String)
 }
 
+///|
 /// One arm of a case statement.  `None` means `default`.
 pub(all) struct CaseArm {
   labels : Array[Expr]? // None = default
   body : Stmt
 }
 
+///|
 /// Port direction.
 pub(all) enum Dir {
   Input
@@ -135,6 +148,7 @@ pub(all) enum Dir {
   Inout
 }
 
+///|
 /// Port declaration inside the module header or body.
 pub(all) struct Port {
   dir : Dir
@@ -145,6 +159,7 @@ pub(all) struct Port {
   signed : Bool
 }
 
+///|
 /// `wire`/`reg`/`integer` declaration.
 pub(all) enum VarKind {
   Wire
@@ -153,6 +168,7 @@ pub(all) enum VarKind {
   Logic
 }
 
+///|
 pub(all) struct VarDecl {
   kind : VarKind
   range : (Expr, Expr)?
@@ -161,6 +177,7 @@ pub(all) struct VarDecl {
   signed : Bool
 }
 
+///|
 /// `parameter NAME = expr;`
 pub(all) struct ParamDecl {
   range : (Expr, Expr)?
@@ -169,18 +186,21 @@ pub(all) struct ParamDecl {
   signed : Bool
 }
 
+///|
 /// Continuous assignment.
 pub(all) struct ContAssign {
   lhs : LValue
   rhs : Expr
 }
 
+///|
 /// A named port connection on an instance.
 pub(all) struct PortConn {
   name : String?
   expr : Expr?
 }
 
+///|
 /// Module instantiation.
 pub(all) struct Instance {
   module_name : String
@@ -189,6 +209,7 @@ pub(all) struct Instance {
   ports : Array[PortConn]
 }
 
+///|
 /// `always` / `initial` process.
 pub(all) enum ProcessKind {
   Always(Array[EventSpec])
@@ -196,11 +217,13 @@ pub(all) enum ProcessKind {
   Initial
 }
 
+///|
 pub(all) struct Process {
   kind : ProcessKind
   body : Stmt
 }
 
+///|
 /// A user function.
 pub(all) struct Function {
   name : String
@@ -209,6 +232,7 @@ pub(all) struct Function {
   body : Stmt
 }
 
+///|
 /// A complete module.
 pub(all) struct Module {
   name : String
@@ -221,6 +245,7 @@ pub(all) struct Module {
   functions : Array[Function]
 }
 
+///|
 /// A parsed source file.
 pub(all) struct Design {
   modules : Array[Module]

@@ -2,17 +2,21 @@
 //
 //   moonvsim run <file.v> [--top NAME] [--vcd out.vcd] [--max-time N]
 
+///|
 fn usage() -> Unit {
   println("moonvsim - a four-state Verilog-2001 simulator written in MoonBit")
   println("")
   println("usage: moonvsim run <file.v> [options]")
   println("")
   println("options:")
-  println("  --top NAME       top module (default: module named top, else the last one)")
+  println(
+    "  --top NAME       top module (default: module named top, else the last one)",
+  )
   println("  --vcd PATH       write a value change dump to PATH")
   println("  --max-time N     stop at simulation time N (default 1000)")
 }
 
+///|
 fn main {
   let argv = @env.args()
   if argv.length() < 2 {
@@ -50,9 +54,7 @@ fn main {
     usage()
     return
   }
-  let src = try {
-    @fs.read_file_to_string(file)
-  } catch {
+  let src = @fs.read_file_to_string(file) catch {
     _ => {
       println("moonvsim: cannot read \{file}")
       return
@@ -103,6 +105,7 @@ fn main {
   )
 }
 
+///|
 fn parse_time(s : String) -> Int64 {
   let mut t = 0L
   let mut i = 0

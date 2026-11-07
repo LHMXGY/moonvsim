@@ -22,7 +22,7 @@ repository = ""
 
 license = "Apache-2.0"
 
-keywords = ["verilog", "rtl", "simulator", "eda", "hdl"]
+keywords = [ "verilog", "rtl", "simulator", "eda", "hdl" ]
 
 preferred_target = "wasm-gc"
 

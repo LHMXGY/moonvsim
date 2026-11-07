@@ -1,10 +1,12 @@
 // Lexer tests.
 
+///|
 fn toks_of(src : String) -> Array[Token] {
   let (t, _errs) = tokenize(src)
   t
 }
 
+///|
 test "sized literals" {
   let t = toks_of("8'hFF 4'b10x0 3'o7 12'd255")
   assert_eq(t.length(), 5)
@@ -31,6 +33,7 @@ test "sized literals" {
   assert_eq(b3.to_dec_string(), "255")
 }
 
+///|
 test "unsized and x/z literals" {
   let t = toks_of("42 'hA 8'hzz 8'b0000_1111")
   assert_eq(t.length(), 5)
@@ -52,8 +55,11 @@ test "unsized and x/z literals" {
   assert_eq(b3.to_bin_string(), "00001111")
 }
 
+///|
 test "identifiers and punctuation" {
-  let t = toks_of("module m; input clk; always @(posedge clk) q <= d; endmodule")
+  let t = toks_of(
+    "module m; input clk; always @(posedge clk) q <= d; endmodule",
+  )
   assert_eq(t.length(), 18)
   match t[0].kind {
     Ident(s) => assert_eq(s, "module")
@@ -69,6 +75,7 @@ test "identifiers and punctuation" {
   }
 }
 
+///|
 test "comments and strings" {
   let t = toks_of("// a\n/* b\nc */ x 1 \"hi \\\" you\"")
   assert_eq(t.length(), 4)
@@ -78,6 +85,7 @@ test "comments and strings" {
   }
 }
 
+///|
 test "system identifiers" {
   let t = toks_of("$display $finish")
   assert_eq(t.length(), 3)

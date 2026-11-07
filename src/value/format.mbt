@@ -1,5 +1,6 @@
 // Textual rendering of four-state values.
 
+///|
 fn hex_digit_char(d : UInt64) -> Char {
   if d < 10UL {
     (48 + d.to_int()).unsafe_to_char()
@@ -8,6 +9,7 @@ fn hex_digit_char(d : UInt64) -> Char {
   }
 }
 
+///|
 /// Binary digits, MSB first, exactly `width` characters.
 pub fn Bits::to_bin_string(self : Bits) -> String {
   let sb = StringBuilder()
@@ -19,6 +21,7 @@ pub fn Bits::to_bin_string(self : Bits) -> String {
   sb.to_string()
 }
 
+///|
 /// Octal digits, MSB first (unknown groups render as `x`/`z`).
 pub fn Bits::to_oct_string(self : Bits) -> String {
   let sb = StringBuilder()
@@ -53,6 +56,7 @@ pub fn Bits::to_oct_string(self : Bits) -> String {
   sb.to_string()
 }
 
+///|
 /// Hex digits, MSB first (unknown groups render as `x`/`z`).
 pub fn Bits::to_hex_string(self : Bits) -> String {
   let sb = StringBuilder()
@@ -87,6 +91,7 @@ pub fn Bits::to_hex_string(self : Bits) -> String {
   sb.to_string()
 }
 
+///|
 /// Decimal rendering: `x` when any bit is unknown, signed when the value is
 /// signed, unsigned otherwise.
 pub fn Bits::to_dec_string(self : Bits) -> String {
@@ -99,6 +104,7 @@ pub fn Bits::to_dec_string(self : Bits) -> String {
   }
 }
 
+///|
 /// Render using a Verilog format specifier body (`d`, `h`, `b`, `o`, `x`, `s`).
 pub fn Bits::format(
   self : Bits,
@@ -126,7 +132,7 @@ pub fn Bits::format(
       if self.is_known() {
         // Verilog strings are byte strings; render printable ASCII and drop NULs.
         let sb = StringBuilder()
-        let mut shift = (self.width / 8) * 8 - 8
+        let mut shift = self.width / 8 * 8 - 8
         while shift >= 0 {
           let byte = (self.val >> shift).to_int() & 0xFF
           if byte != 0 {
@@ -143,6 +149,7 @@ pub fn Bits::format(
   pad_left(text, width, zero_pad)
 }
 
+///|
 /// Pad `text` on the left to `width` characters.
 pub fn pad_left(text : String, width : Int32, zero_pad : Bool) -> String {
   if width <= 0 || text.length() >= width {
@@ -159,6 +166,7 @@ pub fn pad_left(text : String, width : Int32, zero_pad : Bool) -> String {
   sb.to_string()
 }
 
+///|
 /// Render with left padding by spaces.
 pub fn pad_left_spaces(text : String, width : Int32) -> String {
   pad_left(text, width, false)

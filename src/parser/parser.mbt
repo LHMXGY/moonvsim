@@ -1,27 +1,32 @@
 // Recursive-descent parser for the Verilog-2001 synthesizable subset.
 
+///|
 pub struct Parser {
   toks : Array[@lexer.Token]
   mut pos : Int32
   errors : Array[String]
 }
 
+///|
 pub fn Parser::new(toks : Array[@lexer.Token]) -> Parser {
-  { toks: toks, pos: 0, errors: [] }
+  { toks, pos: 0, errors: [], }
 }
 
+///|
 fn Parser::cur(self : Parser) -> @lexer.Token {
   if self.pos < self.toks.length() {
     self.toks[self.pos]
   } else {
-    { kind: @lexer.Eof, line: 0, col: 0 }
+    { kind: @lexer.Eof, line: 0, col: 0, }
   }
 }
 
+///|
 fn Parser::cur_kind(self : Parser) -> @lexer.TokenKind {
   self.cur().kind
 }
 
+///|
 fn Parser::advance(self : Parser) -> Unit {
   if self.pos < self.toks.length() - 1 {
     self.pos = self.pos + 1
@@ -30,11 +35,13 @@ fn Parser::advance(self : Parser) -> Unit {
   }
 }
 
+///|
 fn Parser::error(self : Parser, msg : String) -> Unit {
   let t = self.cur()
   self.errors.push("[parse] line \{t.line}:\{t.col}: \{msg}")
 }
 
+///|
 /// True when the current token is the given punctuation.
 fn Parser::at(self : Parser, s : String) -> Bool {
   match self.cur_kind() {
@@ -43,6 +50,7 @@ fn Parser::at(self : Parser, s : String) -> Bool {
   }
 }
 
+///|
 /// True when the current token is the given identifier/keyword.
 fn Parser::at_kw(self : Parser, s : String) -> Bool {
   match self.cur_kind() {
@@ -51,6 +59,7 @@ fn Parser::at_kw(self : Parser, s : String) -> Bool {
   }
 }
 
+///|
 /// Consume an optional `signed` / `unsigned` qualifier.
 fn Parser::eat_signed(self : Parser) -> Bool {
   if self.eat_kw("signed") {
@@ -61,6 +70,7 @@ fn Parser::eat_signed(self : Parser) -> Bool {
   }
 }
 
+///|
 fn Parser::eat(self : Parser, s : String) -> Bool {
   if self.at(s) {
     self.advance()
@@ -70,6 +80,7 @@ fn Parser::eat(self : Parser, s : String) -> Bool {
   }
 }
 
+///|
 fn Parser::eat_kw(self : Parser, s : String) -> Bool {
   if self.at_kw(s) {
     self.advance()
@@ -79,12 +90,14 @@ fn Parser::eat_kw(self : Parser, s : String) -> Bool {
   }
 }
 
+///|
 fn Parser::expect(self : Parser, s : String) -> Unit {
   if !self.eat(s) {
     self.error("expected '\{s}'")
   }
 }
 
+///|
 fn Parser::expect_ident(self : Parser) -> String {
   match self.cur_kind() {
     Ident(p) => {
@@ -98,6 +111,7 @@ fn Parser::expect_ident(self : Parser) -> String {
   }
 }
 
+///|
 fn Parser::at_eof(self : Parser) -> Bool {
   match self.cur_kind() {
     @lexer.Eof => true
@@ -109,10 +123,12 @@ fn Parser::at_eof(self : Parser) -> Bool {
 // Expressions
 // ---------------------------------------------------------------------------
 
+///|
 fn Parser::parse_expr(self : Parser) -> @ast.Expr {
   self.parse_ternary()
 }
 
+///|
 fn Parser::parse_ternary(self : Parser) -> @ast.Expr {
   let cond = self.parse_lor()
   if self.eat("?") {
@@ -125,6 +141,7 @@ fn Parser::parse_ternary(self : Parser) -> @ast.Expr {
   }
 }
 
+///|
 fn Parser::parse_lor(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_land()
   while self.at("||") {
@@ -135,6 +152,7 @@ fn Parser::parse_lor(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_land(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_bor()
   while self.at("&&") {
@@ -145,6 +163,7 @@ fn Parser::parse_land(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_bor(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_bxor()
   while self.at("|") {
@@ -155,6 +174,7 @@ fn Parser::parse_bor(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_bxor(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_band()
   while self.at("^") || self.at("~^") || self.at("^~") {
@@ -166,6 +186,7 @@ fn Parser::parse_bxor(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_band(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_eq()
   while self.at("&") {
@@ -176,6 +197,7 @@ fn Parser::parse_band(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_eq(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_rel()
   let mut go = true
@@ -203,6 +225,7 @@ fn Parser::parse_eq(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_rel(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_shift()
   let mut go = true
@@ -230,6 +253,7 @@ fn Parser::parse_rel(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_shift(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_add()
   let mut go = true
@@ -255,6 +279,7 @@ fn Parser::parse_shift(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_add(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_mul()
   let mut go = true
@@ -278,6 +303,7 @@ fn Parser::parse_add(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_mul(self : Parser) -> @ast.Expr {
   let mut lhs = self.parse_unary()
   let mut go = true
@@ -303,6 +329,7 @@ fn Parser::parse_mul(self : Parser) -> @ast.Expr {
   lhs
 }
 
+///|
 fn Parser::parse_unary(self : Parser) -> @ast.Expr {
   // `~&`, `~|` and `~^` are reductions with the result inverted; model them as
   // a reduction followed by a logical negation so the AST keeps one node type.
@@ -345,6 +372,7 @@ fn Parser::parse_unary(self : Parser) -> @ast.Expr {
   }
 }
 
+///|
 fn Parser::parse_power(self : Parser) -> @ast.Expr {
   let lhs = self.parse_primary()
   if self.at("**") {
@@ -356,11 +384,16 @@ fn Parser::parse_power(self : Parser) -> @ast.Expr {
   }
 }
 
+///|
 /// Expand `base +: width` / `base -: width` into an explicit `[hi:lo]` pair.
-fn indexed_part(self : Parser, base : @ast.Expr, plus : Bool) -> (@ast.Expr, @ast.Expr) {
+fn Parser::indexed_part(
+  self : Parser,
+  base : @ast.Expr,
+  plus : Bool,
+) -> (@ast.Expr, @ast.Expr) {
   let width = self.parse_expr()
   self.expect("]")
-  let one = @ast.Number({ bits: @value.Bits::from_int(1) })
+  let one = @ast.Number({ bits: @value.Bits::from_int(1), })
   let lo = if plus {
     base
   } else {
@@ -374,11 +407,12 @@ fn indexed_part(self : Parser, base : @ast.Expr, plus : Bool) -> (@ast.Expr, @as
   (hi, lo)
 }
 
+///|
 fn Parser::parse_primary(self : Parser) -> @ast.Expr {
   match self.cur_kind() {
     Number(b) => {
       self.advance()
-      @ast.Number({ bits: b })
+      @ast.Number({ bits: b, })
     }
     Str(s) => {
       self.advance()
@@ -433,16 +467,17 @@ fn Parser::parse_primary(self : Parser) -> @ast.Expr {
       } else {
         self.error("unexpected token in expression: '\{p}'")
         self.advance()
-        @ast.Number({ bits: @value.Bits::zero(1) })
+        @ast.Number({ bits: @value.Bits::zero(1), })
       }
     _ => {
       self.error("unexpected end of expression")
       self.advance()
-      @ast.Number({ bits: @value.Bits::zero(1) })
+      @ast.Number({ bits: @value.Bits::zero(1), })
     }
   }
 }
 
+///|
 fn Parser::parse_concat(self : Parser) -> @ast.Expr {
   // Already past '{'.  Either {a, b, c} or {N{a, b}}.
   let first = self.parse_expr()
@@ -467,6 +502,7 @@ fn Parser::parse_concat(self : Parser) -> @ast.Expr {
   }
 }
 
+///|
 fn Parser::parse_args(self : Parser) -> Array[@ast.Expr] {
   let args : Array[@ast.Expr] = []
   if self.at(")") {
@@ -483,6 +519,7 @@ fn Parser::parse_args(self : Parser) -> Array[@ast.Expr] {
 // Lvalues
 // ---------------------------------------------------------------------------
 
+///|
 fn Parser::parse_lvalue(self : Parser) -> @ast.LValue {
   let name = self.expect_ident()
   if self.eat("[") {
@@ -490,19 +527,19 @@ fn Parser::parse_lvalue(self : Parser) -> @ast.LValue {
     if self.eat(":") {
       let lo = self.parse_expr()
       self.expect("]")
-      { name: name, sel: @ast.Part(first, lo) }
+      { name, sel: @ast.Part(first, lo), }
     } else if self.eat("+:") {
       let (hi, lo) = self.indexed_part(first, true)
-      { name: name, sel: @ast.Part(hi, lo) }
+      { name, sel: @ast.Part(hi, lo), }
     } else if self.eat("-:") {
       let (hi, lo) = self.indexed_part(first, false)
-      { name: name, sel: @ast.Part(hi, lo) }
+      { name, sel: @ast.Part(hi, lo), }
     } else {
       self.expect("]")
-      { name: name, sel: @ast.Bit(first) }
+      { name, sel: @ast.Bit(first), }
     }
   } else {
-    { name: name, sel: @ast.Whole }
+    { name, sel: @ast.Whole, }
   }
 }
 
@@ -510,6 +547,7 @@ fn Parser::parse_lvalue(self : Parser) -> @ast.LValue {
 // Statements
 // ---------------------------------------------------------------------------
 
+///|
 fn Parser::parse_stmt(self : Parser) -> @ast.Stmt {
   if self.eat(";") {
     return @ast.Null
@@ -545,14 +583,14 @@ fn Parser::parse_stmt(self : Parser) -> @ast.Stmt {
     while !self.at_kw("endcase") && !self.at_eof() {
       if self.eat_kw("default") {
         self.eat(":") |> ignore
-        arms.push({ labels: None, body: self.parse_stmt() })
+        arms.push({ labels: None, body: self.parse_stmt(), })
       } else {
         let labels : Array[@ast.Expr] = [self.parse_expr()]
         while self.eat(",") {
           labels.push(self.parse_expr())
         }
         self.eat(":") |> ignore
-        arms.push({ labels: Some(labels), body: self.parse_stmt() })
+        arms.push({ labels: Some(labels), body: self.parse_stmt(), })
       }
     }
     self.eat_kw("endcase") |> ignore
@@ -642,6 +680,7 @@ fn Parser::parse_stmt(self : Parser) -> @ast.Stmt {
   }
 }
 
+///|
 /// Assignment core: `lvalue = expr` / `lvalue <= expr`, no semicolon.
 fn Parser::parse_assign_core(self : Parser) -> @ast.Stmt {
   let lv = self.parse_lvalue()
@@ -657,6 +696,7 @@ fn Parser::parse_assign_core(self : Parser) -> @ast.Stmt {
   }
 }
 
+///|
 /// Assignment statement with the trailing semicolon.
 fn Parser::parse_assign_stmt(self : Parser) -> @ast.Stmt {
   let lv = self.parse_lvalue()
@@ -674,6 +714,7 @@ fn Parser::parse_assign_stmt(self : Parser) -> @ast.Stmt {
   }
 }
 
+///|
 fn Parser::parse_sens_list(self : Parser) -> Array[@ast.EventSpec] {
   let specs : Array[@ast.EventSpec] = []
   if self.eat("*") {
@@ -692,7 +733,7 @@ fn Parser::parse_sens_list(self : Parser) -> Array[@ast.EventSpec] {
       @ast.Any
     }
     let e = self.parse_expr()
-    specs.push({ edge: edge, expr: e })
+    specs.push({ edge, expr: e, })
     if self.eat(",") || self.eat_kw("or") {
       go = true
     } else {
@@ -706,6 +747,7 @@ fn Parser::parse_sens_list(self : Parser) -> Array[@ast.EventSpec] {
 // Module items
 // ---------------------------------------------------------------------------
 
+///|
 fn Parser::parse_range(self : Parser) -> (@ast.Expr, @ast.Expr)? {
   if self.eat("[") {
     let hi = self.parse_expr()
@@ -718,6 +760,7 @@ fn Parser::parse_range(self : Parser) -> (@ast.Expr, @ast.Expr)? {
   }
 }
 
+///|
 fn Parser::parse_design(self : Parser) -> @ast.Design {
   let mods : Array[@ast.Module] = []
   while !self.at_eof() {
@@ -732,9 +775,10 @@ fn Parser::parse_design(self : Parser) -> @ast.Design {
       self.advance()
     }
   }
-  { modules: mods }
+  { modules: mods, }
 }
 
+///|
 fn Parser::parse_module(self : Parser) -> @ast.Module {
   let name = self.expect_ident()
   let ports : Array[@ast.Port] = []
@@ -750,9 +794,9 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
       let value = if self.eat("=") {
         self.parse_expr()
       } else {
-        @ast.Number({ bits: @value.Bits::zero(1) })
+        @ast.Number({ bits: @value.Bits::zero(1), })
       }
-      header_params.push({ range: range, name: pname, value: value, signed: false })
+      header_params.push({ range, name: pname, value, signed: false, })
       if !self.eat(",") {
         break
       }
@@ -769,7 +813,7 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
       // Non-ANSI: just names; declarations appear in the body.
       while !self.at(")") && !self.at_eof() {
         let n = self.expect_ident()
-        ports.push({ dir: @ast.Inout, range: None, names: [n], signed: false })
+        ports.push({ dir: @ast.Inout, range: None, names: [n], signed: false, })
         if !self.eat(",") {
           break
         }
@@ -821,17 +865,22 @@ fn Parser::parse_module(self : Parser) -> @ast.Module {
     }
   }
   {
-    name: name,
-    params: params,
-    ports: if port_decls.length() > 0 { port_decls } else { ports },
-    vars: vars,
-    assigns: assigns,
-    processes: processes,
-    instances: instances,
-    functions: functions,
+    name,
+    params,
+    ports: if port_decls.length() > 0 {
+      port_decls
+    } else {
+      ports
+    },
+    vars,
+    assigns,
+    processes,
+    instances,
+    functions,
   }
 }
 
+///|
 fn Parser::parse_port_decl(self : Parser) -> @ast.Port {
   let dir = if self.eat_kw("input") {
     @ast.Input
@@ -846,9 +895,10 @@ fn Parser::parse_port_decl(self : Parser) -> @ast.Port {
   let signed = self.eat_signed()
   let range = self.parse_range()
   let names : Array[String] = [self.expect_ident()]
-  { dir: dir, range: range, names: names, signed: signed }
+  { dir, range, names, signed, }
 }
 
+///|
 fn Parser::parse_body_port(self : Parser) -> @ast.Port {
   let dir = if self.eat_kw("input") {
     @ast.Input
@@ -878,9 +928,10 @@ fn Parser::parse_body_port(self : Parser) -> @ast.Port {
     }
   }
   self.expect(";")
-  { dir: dir, range: range, names: names, signed: signed }
+  { dir, range, names, signed, }
 }
 
+///|
 fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
   let signed = self.eat_signed()
   let range = self.parse_range()
@@ -890,9 +941,9 @@ fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
     let value = if self.eat("=") {
       self.parse_expr()
     } else {
-      @ast.Number({ bits: @value.Bits::zero(1) })
+      @ast.Number({ bits: @value.Bits::zero(1), })
     }
-    out.push({ range: range, name: name, value: value, signed: signed })
+    out.push({ range, name, value, signed, })
     if !self.eat(",") {
       go = false
     }
@@ -900,6 +951,7 @@ fn Parser::parse_params(self : Parser, out : Array[@ast.ParamDecl]) -> Unit {
   self.expect(";")
 }
 
+///|
 fn Parser::parse_var_decl(self : Parser) -> @ast.VarDecl {
   let kind = if self.eat_kw("reg") {
     @ast.Reg
@@ -928,16 +980,17 @@ fn Parser::parse_var_decl(self : Parser) -> @ast.VarDecl {
     }
   }
   self.expect(";")
-  { kind: kind, range: range, names: names, init: inits[0], signed: signed }
+  { kind, range, names, init: inits[0], signed, }
 }
 
+///|
 fn Parser::parse_assigns(self : Parser, out : Array[@ast.ContAssign]) -> Unit {
   let mut go = true
   while go {
     let lv = self.parse_lvalue()
     self.expect("=")
     let rhs = self.parse_expr()
-    out.push({ lhs: lv, rhs: rhs })
+    out.push({ lhs: lv, rhs, })
     if !self.eat(",") {
       go = false
     }
@@ -945,29 +998,28 @@ fn Parser::parse_assigns(self : Parser, out : Array[@ast.ContAssign]) -> Unit {
   self.expect(";")
 }
 
+///|
 fn Parser::parse_process(self : Parser) -> @ast.Process {
   if self.eat_kw("initial") {
-    return { kind: @ast.Initial, body: self.parse_stmt() }
+    return { kind: @ast.Initial, body: self.parse_stmt(), }
   }
   self.eat_kw("always") |> ignore
   if self.eat("@") {
     if self.eat("(") {
       let specs = self.parse_sens_list()
       self.expect(")")
-      return {
-        kind: @ast.Always(specs),
-        body: self.parse_stmt(),
-      }
+      return { kind: @ast.Always(specs), body: self.parse_stmt(), }
     } else if self.eat("*") {
-      return { kind: @ast.AlwaysComb, body: self.parse_stmt() }
+      return { kind: @ast.AlwaysComb, body: self.parse_stmt(), }
     } else {
       let specs : Array[@ast.EventSpec] = []
-      return { kind: @ast.Always(specs), body: self.parse_stmt() }
+      return { kind: @ast.Always(specs), body: self.parse_stmt(), }
     }
   }
-  { kind: @ast.AlwaysComb, body: self.parse_stmt() }
+  { kind: @ast.AlwaysComb, body: self.parse_stmt(), }
 }
 
+///|
 fn Parser::parse_function(self : Parser) -> @ast.Function {
   let range = self.parse_range()
   let name = self.expect_ident()
@@ -996,14 +1048,10 @@ fn Parser::parse_function(self : Parser) -> @ast.Function {
     stmts.push(self.parse_stmt())
   }
   self.eat_kw("endfunction") |> ignore
-  {
-    name: name,
-    ret_range: range,
-    inputs: inputs,
-    body: @ast.Block(stmts),
-  }
+  { name, ret_range: range, inputs, body: @ast.Block(stmts), }
 }
 
+///|
 fn Parser::parse_instance(self : Parser) -> @ast.Instance {
   let module_name = self.expect_ident()
   let params : Array[(String?, @ast.Expr)] = []
@@ -1037,9 +1085,9 @@ fn Parser::parse_instance(self : Parser) -> @ast.Instance {
         self.expect("(")
         let e = if self.at(")") { None } else { Some(self.parse_expr()) }
         self.expect(")")
-        conns.push({ name: Some(n), expr: e })
+        conns.push({ name: Some(n), expr: e, })
       } else {
-        conns.push({ name: None, expr: Some(self.parse_expr()) })
+        conns.push({ name: None, expr: Some(self.parse_expr()), })
       }
       if !self.eat(",") {
         break
@@ -1048,14 +1096,10 @@ fn Parser::parse_instance(self : Parser) -> @ast.Instance {
     self.expect(")")
   }
   self.expect(";")
-  {
-    module_name: module_name,
-    instance_name: instance_name,
-    params: params,
-    ports: conns,
-  }
+  { module_name, instance_name, params, ports: conns, }
 }
 
+///|
 /// Parse a whole source file.
 pub fn parse(src : String) -> (@ast.Design, Array[String]) {
   let (toks, lex_errs) = @lexer.tokenize(src)

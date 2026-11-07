@@ -5,6 +5,7 @@
 // such as `top.u1.q` become nested `$scope` blocks so that GTKWave and
 // Surfer show the same tree as a commercial simulator would.
 
+///|
 pub(all) struct Writer {
   names : Array[String]
   widths : Array[Int32]
@@ -12,6 +13,7 @@ pub(all) struct Writer {
   sb : StringBuilder
 }
 
+///|
 fn code_of(n : Int32) -> String {
   // VCD identifiers may be any printable ASCII; we restrict them to
   // [0-9A-Za-z] so that an id can never be confused with the `#<time>` and
@@ -23,15 +25,18 @@ fn code_of(n : Int32) -> String {
   let mut k = n + 1
   while k > 0 {
     let d = (k - 1) % 62
-    sb.write_char(match alphabet.get_char(d) {
-      Some(c) => c
-      None => '0'
-    })
+    sb.write_char(
+      match alphabet.get_char(d) {
+        Some(c) => c
+        None => '0'
+      },
+    )
     k = (k - 1) / 62
   }
   sb.to_string()
 }
 
+///|
 fn split_dots(name : String) -> Array[String] {
   let out : Array[String] = []
   let sb = StringBuilder()
@@ -53,6 +58,7 @@ fn split_dots(name : String) -> Array[String] {
   out
 }
 
+///|
 pub fn Writer::new(names : Array[String], widths : Array[Int32]) -> Writer {
   let ids : Array[String] = []
   let mut i = 0
@@ -60,24 +66,22 @@ pub fn Writer::new(names : Array[String], widths : Array[Int32]) -> Writer {
     ids.push(code_of(i))
     i = i + 1
   }
-  {
-    names: names,
-    widths: widths,
-    ids: ids,
-    sb: StringBuilder(),
-  }
+  { names, widths, ids, sb: StringBuilder(), }
 }
 
+///|
 fn Writer::open_scope(self : Writer, name : String) -> Unit {
   self.sb.write_string("$scope module ")
   self.sb.write_string(name)
   self.sb.write_string(" $end\n")
 }
 
+///|
 fn Writer::close_scope(self : Writer) -> Unit {
   self.sb.write_string("$upscope $end\n")
 }
 
+///|
 fn Writer::declare_var(self : Writer, idx : Int32, leaf : String) -> Unit {
   self.sb.write_string("$var wire ")
   self.sb.write_string(self.widths[idx].to_string())
@@ -88,6 +92,7 @@ fn Writer::declare_var(self : Writer, idx : Int32, leaf : String) -> Unit {
   self.sb.write_string(" $end\n")
 }
 
+///|
 /// Write the preamble (metadata, `$scope` tree, `$var` table).
 pub fn Writer::header(self : Writer) -> Unit {
   self.sb.write_string("$version moonvsim $end\n")
@@ -131,6 +136,7 @@ pub fn Writer::header(self : Writer) -> Unit {
   self.sb.write_string("$enddefinitions $end\n")
 }
 
+///|
 /// Emit a `#time` marker; the caller decides when a new timestamp is needed.
 pub fn Writer::time_marker(self : Writer, time : Int64) -> Unit {
   self.sb.write_char('#')
@@ -138,6 +144,7 @@ pub fn Writer::time_marker(self : Writer, time : Int64) -> Unit {
   self.sb.write_char('\n')
 }
 
+///|
 /// Emit one value change (`0!`/`1!` for scalars, `b1010 !` for vectors).
 pub fn Writer::value(self : Writer, id : Int32, v : @value.Bits) -> Unit {
   if self.widths[id] == 1 {
@@ -154,14 +161,17 @@ pub fn Writer::value(self : Writer, id : Int32, v : @value.Bits) -> Unit {
   }
 }
 
+///|
 pub fn Writer::begin_dumpvars(self : Writer) -> Unit {
   self.sb.write_string("$dumpvars\n")
 }
 
+///|
 pub fn Writer::end_dumpvars(self : Writer) -> Unit {
   self.sb.write_string("$end\n")
 }
 
+///|
 pub fn Writer::text(self : Writer) -> String {
   self.sb.to_string()
 }

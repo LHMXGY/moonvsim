@@ -1,5 +1,6 @@
 // Verilog-2001 tokenizer.
 
+///|
 /// Token kinds produced by the lexer.
 pub(all) enum TokenKind {
   Ident(String)
@@ -9,6 +10,7 @@ pub(all) enum TokenKind {
   Eof
 }
 
+///|
 /// A token with its 1-based source position.
 pub(all) struct Token {
   kind : TokenKind
@@ -16,6 +18,7 @@ pub(all) struct Token {
   col : Int32
 }
 
+///|
 /// Streaming lexer state.
 pub(all) struct Lexer {
   src : String
@@ -25,18 +28,22 @@ pub(all) struct Lexer {
   errors : Array[String]
 }
 
+///|
 pub fn Lexer::new(src : String) -> Lexer {
-  { src: src, pos: 0, line: 1, col: 1, errors: [] }
+  { src, pos: 0, line: 1, col: 1, errors: [], }
 }
 
+///|
 fn Lexer::peek(self : Lexer) -> Char? {
   self.src.get_char(self.pos)
 }
 
+///|
 fn Lexer::peek_at(self : Lexer, off : Int32) -> Char? {
   self.src.get_char(self.pos + off)
 }
 
+///|
 fn Lexer::bump(self : Lexer) -> Unit {
   match self.src.get_char(self.pos) {
     None => ()
@@ -52,29 +59,32 @@ fn Lexer::bump(self : Lexer) -> Unit {
   }
 }
 
+///|
 fn Lexer::error(self : Lexer, msg : String) -> Unit {
   self.errors.push("[lex] line \{self.line}:\{self.col}: \{msg}")
 }
 
+///|
 fn is_space(c : Char) -> Bool {
   c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\u{000B}'
 }
 
+///|
 fn is_digit(c : Char) -> Bool {
   c >= '0' && c <= '9'
 }
 
+///|
 fn is_ident_start(c : Char) -> Bool {
-  (c >= 'a' && c <= 'z') ||
-  (c >= 'A' && c <= 'Z') ||
-  c == '_' ||
-  c == '$'
+  (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '$'
 }
 
+///|
 fn is_ident_char(c : Char) -> Bool {
   is_ident_start(c) || is_digit(c)
 }
 
+///|
 fn char_to_digit(c : Char) -> Int32 {
   if c >= '0' && c <= '9' {
     c.to_int() - 48
@@ -87,14 +97,16 @@ fn char_to_digit(c : Char) -> Int32 {
   }
 }
 
+///|
 /// Punctuation operators, longest first so prefix matching picks the longest.
 let puncts : Array[String] = [
-  "===", "!==", ">>>", "<<<", "==", "!=", "&&", "||", "<=", ">=", "<<", ">>",
-  "~&", "~|", "~^", "^~", "+:", "-:", "**", "->", "+", "-", "*", "/", "%", "(",
-  ")", "[", "]", "{", "}", ";", ":", ",", ".", "#", "@", "?", "=", "<", ">",
-  "!", "&", "|", "^", "~",
+  "===", "!==", ">>>", "<<<", "==", "!=", "&&", "||", "<=", ">=", "<<", ">>", "~&",
+  "~|", "~^", "^~", "+:", "-:", "**", "->", "+", "-", "*", "/", "%", "(", ")", "[",
+  "]", "{", "}", ";", ":", ",", ".", "#", "@", "?", "=", "<", ">", "!", "&", "|",
+  "^", "~",
 ]
 
+///|
 fn Lexer::skip_trivia(self : Lexer) -> Unit {
   let mut again = true
   while again {
@@ -147,6 +159,7 @@ fn Lexer::skip_trivia(self : Lexer) -> Unit {
   }
 }
 
+///|
 fn Lexer::read_ident(self : Lexer) -> String {
   let sb = StringBuilder()
   if self.peek() == Some('\\') {
@@ -183,6 +196,7 @@ fn Lexer::read_ident(self : Lexer) -> String {
   sb.to_string()
 }
 
+///|
 fn Lexer::read_string(self : Lexer) -> String {
   self.bump() // opening quote
   let sb = StringBuilder()
@@ -218,6 +232,7 @@ fn Lexer::read_string(self : Lexer) -> String {
   sb.to_string()
 }
 
+///|
 fn parse_uint_text(s : String) -> UInt64 {
   let mut v = 0UL
   let mut i = 0
@@ -231,15 +246,10 @@ fn parse_uint_text(s : String) -> UInt64 {
   v
 }
 
+///|
 /// Build a value from base-`base` digits, honouring x/z/? digits.
 fn build_based(digits : String, base : Int32, width : Int32) -> @value.Bits {
-  let per = if base == 16 {
-    4
-  } else if base == 8 {
-    3
-  } else {
-    1
-  }
+  let per = if base == 16 { 4 } else if base == 8 { 3 } else { 1 }
   let w = if width > 0 { width } else { 32 }
   if base == 10 {
     let mut has_x = false
@@ -251,10 +261,7 @@ fn build_based(digits : String, base : Int32, width : Int32) -> @value.Bits {
       match c {
         'x' | 'X' => has_x = true
         'z' | 'Z' | '?' => has_z = true
-        _ =>
-          if is_digit(c) {
-            v = v * 10UL + (c.to_int() - 48).to_uint64()
-          }
+        _ => if is_digit(c) { v = v * 10UL + (c.to_int() - 48).to_uint64() }
       }
       i = i + 1
     }
@@ -318,6 +325,7 @@ fn build_based(digits : String, base : Int32, width : Int32) -> @value.Bits {
   }
 }
 
+///|
 /// Parse a sized or unsized number literal starting at a digit.
 fn Lexer::read_number(self : Lexer) -> @value.Bits {
   let sb = StringBuilder()
@@ -394,6 +402,7 @@ fn Lexer::read_number(self : Lexer) -> @value.Bits {
   }
 }
 
+///|
 fn Lexer::starts_base_literal(self : Lexer) -> Bool {
   match self.peek_at(1) {
     Some(c) =>
@@ -412,6 +421,7 @@ fn Lexer::starts_base_literal(self : Lexer) -> Bool {
   }
 }
 
+///|
 fn Lexer::match_punct(self : Lexer) -> String? {
   for p in puncts {
     let mut ok = true
@@ -435,35 +445,37 @@ fn Lexer::match_punct(self : Lexer) -> String? {
   None
 }
 
+///|
 fn Lexer::next_token(self : Lexer) -> Token {
   self.skip_trivia()
   let line = self.line
   let col = self.col
   match self.peek() {
-    None => { kind: Eof, line: line, col: col }
+    None => { kind: Eof, line, col, }
     Some(c) =>
       if is_digit(c) || (c == '\'' && self.starts_base_literal()) {
         let v = self.read_number()
-        { kind: Number(v), line: line, col: col }
+        { kind: Number(v), line, col, }
       } else if is_ident_start(c) || c == '\\' {
         let id = self.read_ident()
-        { kind: Ident(id), line: line, col: col }
+        { kind: Ident(id), line, col, }
       } else if c == '"' {
         let s = self.read_string()
-        { kind: Str(s), line: line, col: col }
+        { kind: Str(s), line, col, }
       } else {
         match self.match_punct() {
-          Some(p) => { kind: Punct(p), line: line, col: col }
+          Some(p) => { kind: Punct(p), line, col, }
           None => {
             self.error("unexpected character '\{c}'")
             self.bump()
-            { kind: Punct(c.to_string()), line: line, col: col }
+            { kind: Punct(c.to_string()), line, col, }
           }
         }
       }
   }
 }
 
+///|
 /// Tokenize a source string.  Lexical errors are collected, not thrown.
 pub fn tokenize(src : String) -> (Array[Token], Array[String]) {
   let lx = Lexer::new(src)

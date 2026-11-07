@@ -3,6 +3,7 @@
 // Values are held as four-state `Bits`; a design starts fully unknown (x),
 // which is what Verilog specifies for regs and wires at time zero.
 
+///|
 pub(all) struct Sim {
   net : @elaborate.Netlist
   vals : Array[@value.Bits]
@@ -21,6 +22,7 @@ pub(all) struct Sim {
   mut dirty : Bool
 }
 
+///|
 pub fn Sim::new(net : @elaborate.Netlist) -> Sim {
   let vals : Array[@value.Bits] = []
   let nba : Array[@value.Bits] = []
@@ -36,10 +38,10 @@ pub fn Sim::new(net : @elaborate.Netlist) -> Sim {
   }
   let lw = lower_all(net)
   {
-    net: net,
-    vals: vals,
-    prev: prev,
-    nba: nba,
+    net,
+    vals,
+    prev,
+    nba,
     nba_pending: pend,
     threads: lw.threads,
     combs: lw.combs,
@@ -54,6 +56,7 @@ pub fn Sim::new(net : @elaborate.Netlist) -> Sim {
   }
 }
 
+///|
 /// Copy the current values into the `prev` snapshot used for edge detection.
 pub fn Sim::snapshot(self : Sim) -> Unit {
   let mut i = 0
@@ -63,12 +66,14 @@ pub fn Sim::snapshot(self : Sim) -> Unit {
   }
 }
 
+///|
 /// Resolve a name as seen from `scope`: local nets, then fully qualified nets,
 /// then enclosing scopes.
 pub fn Sim::lookup(self : Sim, scope : Int32, name : String) -> Int32? {
   net_lookup(self.net, scope, name)
 }
 
+///|
 /// Name resolution shared with the lowering pass: local nets, then the fully
 /// qualified name, then enclosing scopes.
 fn net_lookup(net : @elaborate.Netlist, scope : Int32, name : String) -> Int32? {
@@ -83,14 +88,17 @@ fn net_lookup(net : @elaborate.Netlist, scope : Int32, name : String) -> Int32? 
   @elaborate.find_sig(net, name)
 }
 
+///|
 fn Sim::sig_width(self : Sim, id : Int32) -> Int32 {
   self.net.sigs[id].width
 }
 
+///|
 pub fn Sim::read(self : Sim, id : Int32) -> @value.Bits {
   self.vals[id]
 }
 
+///|
 /// Write a whole net; returns true when the value actually changed.
 pub fn Sim::write(self : Sim, id : Int32, v : @value.Bits) -> Bool {
   let cur = self.vals[id]
@@ -103,12 +111,14 @@ pub fn Sim::write(self : Sim, id : Int32, v : @value.Bits) -> Bool {
   }
 }
 
+///|
 /// Queue a non-blocking assignment.
 fn Sim::write_nba(self : Sim, id : Int32, v : @value.Bits) -> Unit {
   self.nba[id] = v.resize(self.sig_width(id))
   self.nba_pending[id] = true
 }
 
+///|
 /// Apply all queued non-blocking assignments; returns true when anything moved.
 fn Sim::commit_nba(self : Sim) -> Bool {
   let mut changed = false
@@ -125,8 +135,14 @@ fn Sim::commit_nba(self : Sim) -> Bool {
   changed
 }
 
+///|
 /// Assign to a (possibly selected) lvalue.
-fn Sim::write_lvalue(self : Sim, scope : Int32, lv : @ast.LValue, v : @value.Bits) -> Bool {
+fn Sim::write_lvalue(
+  self : Sim,
+  scope : Int32,
+  lv : @ast.LValue,
+  v : @value.Bits,
+) -> Bool {
   match self.lookup(scope, lv.name) {
     None => false
     Some(id) => {
@@ -153,6 +169,7 @@ fn Sim::write_lvalue(self : Sim, scope : Int32, lv : @ast.LValue, v : @value.Bit
   }
 }
 
+///|
 fn Sim::eval_int(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
   let v = self.eval(scope, e, 32)
   if v.is_known() {
@@ -162,15 +179,18 @@ fn Sim::eval_int(self : Sim, scope : Int32, e : @ast.Expr) -> Int32 {
   }
 }
 
+///|
 pub fn Sim::log(self : Sim, msg : String) -> Unit {
   self.messages.push(msg)
 }
 
+///|
 /// Attach a VCD writer; changes from here on are recorded.
 pub fn Sim::attach_vcd(self : Sim, w : @vcd.Writer) -> Unit {
   self.vcd = Some(w)
 }
 
+///|
 /// Write the VCD preamble and the time-zero values.
 pub fn Sim::dump_initial(self : Sim) -> Unit {
   match self.vcd {
@@ -191,6 +211,7 @@ pub fn Sim::dump_initial(self : Sim) -> Unit {
   }
 }
 
+///|
 /// Record every value that moved during the last delta cycle.
 pub fn Sim::trace(self : Sim) -> Unit {
   match self.vcd {

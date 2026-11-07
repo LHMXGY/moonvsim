@@ -1,10 +1,10 @@
 import {
-  "moonbitlang/core/env" @env,
-  "moonbitlang/x/fs" @fs,
-  "moonvsim/moonvsim/src/elaborate" @elaborate,
-  "moonvsim/moonvsim/src/parser" @parser,
-  "moonvsim/moonvsim/src/sim" @sim,
-  "moonvsim/moonvsim/src/vcd" @vcd,
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+  "moonvsim/moonvsim/src/elaborate",
+  "moonvsim/moonvsim/src/parser",
+  "moonvsim/moonvsim/src/sim",
+  "moonvsim/moonvsim/src/vcd",
 }
 
 pkgtype(kind: "executable")

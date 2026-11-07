@@ -1,6 +1,7 @@
 // Scheduling: delta cycles, edge detection, time advance and statement
 // execution.  This is the only place that mutates `Sim.time`/`Sim.finished`.
 
+///|
 fn Sim::lvalue_width(self : Sim, scope : Int32, lv : @ast.LValue) -> Int32 {
   let w = match self.lookup(scope, lv.name) {
     Some(id) => self.sig_width(id)
@@ -18,6 +19,7 @@ fn Sim::lvalue_width(self : Sim, scope : Int32, lv : @ast.LValue) -> Int32 {
   }
 }
 
+///|
 /// Execute one statement (blocking semantics); non-blocking updates are queued.
 fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
   match s {
@@ -67,7 +69,7 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
       let mut default_body : @ast.Stmt? = None
       for arm in arms {
         match arm.labels {
-          Some(labels) => {
+          Some(labels) =>
             if !done {
               for lab in labels {
                 if !done {
@@ -83,7 +85,6 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
                 }
               }
             }
-          }
           None => default_body = Some(arm.body)
         }
       }
@@ -141,7 +142,9 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
       self.exec(scope, body)
     }
     @ast.EventCtrl(_, body) => {
-      self.log("[sim] event control inside an unsupported statement was ignored")
+      self.log(
+        "[sim] event control inside an unsupported statement was ignored",
+      )
       self.exec(scope, body)
     }
     @ast.CallStmt(name, args) => self.exec_call(scope, name, args)
@@ -149,7 +152,13 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
   }
 }
 
-fn Sim::exec_call(self : Sim, scope : Int32, name : String, args : Array[@ast.Expr]) -> Unit {
+///|
+fn Sim::exec_call(
+  self : Sim,
+  scope : Int32,
+  name : String,
+  args : Array[@ast.Expr],
+) -> Unit {
   match name {
     "$display" => self.log(self.format_display(scope, args))
     "$write" => self.log(self.format_display(scope, args))
@@ -158,8 +167,13 @@ fn Sim::exec_call(self : Sim, scope : Int32, name : String, args : Array[@ast.Ex
   }
 }
 
+///|
 /// `$display`-style formatting: `%d %h %x %b %o %c %s %t %%`.
-fn Sim::format_display(self : Sim, scope : Int32, args : Array[@ast.Expr]) -> String {
+fn Sim::format_display(
+  self : Sim,
+  scope : Int32,
+  args : Array[@ast.Expr],
+) -> String {
   if args.length() == 0 {
     return ""
   }
@@ -206,16 +220,20 @@ fn Sim::format_display(self : Sim, scope : Int32, args : Array[@ast.Expr]) -> St
             if ai < args.length() {
               let a = args[ai]
               ai = ai + 1
-              let w = if has_width {
-                width
-              } else {
-                self.width_of(scope, a)
-              }
+              let w = if has_width { width } else { self.width_of(scope, a) }
               let v = self.eval(scope, a, w)
               let out = if real_spec == 't' {
                 self.time.to_string()
               } else {
-                let raw = v.format(real_spec, if has_width { width } else { 0 }, false)
+                let raw = v.format(
+                  real_spec,
+                  if has_width {
+                    width
+                  } else {
+                    0
+                  },
+                  false,
+                )
                 if has_width {
                   raw
                 } else {
@@ -248,6 +266,7 @@ fn Sim::format_display(self : Sim, scope : Int32, args : Array[@ast.Expr]) -> St
   sb.to_string()
 }
 
+///|
 fn Sim::edge_hit(self : Sim, tid : Int32) -> Bool {
   let n = self.threads[tid].edge_sigs.length()
   let mut i = 0
@@ -268,6 +287,7 @@ fn Sim::edge_hit(self : Sim, tid : Int32) -> Bool {
   hit
 }
 
+///|
 fn Sim::run_thread(self : Sim, tid : Int32) -> Unit {
   let mut steps = 0
   let mut running = true
@@ -310,6 +330,7 @@ fn Sim::run_thread(self : Sim, tid : Int32) -> Unit {
   }
 }
 
+///|
 /// Re-evaluate continuous assignments and combinational processes until the
 /// design stops changing (or the delta budget is exhausted).
 fn Sim::settle(self : Sim) -> Unit {
@@ -335,6 +356,7 @@ fn Sim::settle(self : Sim) -> Unit {
   }
 }
 
+///|
 /// Wake everything that is due now, then settle and propagate edges.
 pub fn Sim::step_once(self : Sim) -> Unit {
   let mut round = 0
@@ -368,6 +390,7 @@ pub fn Sim::step_once(self : Sim) -> Unit {
   }
 }
 
+///|
 fn Sim::next_time(self : Sim) -> Int64 {
   let mut best = -1L
   let mut i = 0
@@ -383,6 +406,7 @@ fn Sim::next_time(self : Sim) -> Int64 {
   best
 }
 
+///|
 /// Run until `$finish`, until no time-based events remain, or until `max_time`.
 pub fn Sim::run(self : Sim, max_time : Int64) -> Unit {
   // Evaluate the continuous assignments once before any initial block runs, so

@@ -19,15 +19,29 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+EXE = ".exe" if os.name == "nt" else ""
 DEFAULT_MOONVSIM = os.path.join(
-    ROOT, "_build", "native", "debug", "build", "src", "cmd", "cmd.exe"
+    ROOT, "_build", "native", "debug", "build", "src", "cmd", "cmd" + EXE
 )
-DEFAULT_IVERILOG = r"E:\ds\tools\iverilog\mingw64\bin\iverilog.exe"
+
+
+def find_iverilog():
+    """Prefer an explicit install, otherwise whatever is on PATH."""
+    candidate = os.path.join(
+        ROOT, "..", "tools", "iverilog", "mingw64", "bin", "iverilog" + EXE
+    )
+    if os.path.isfile(candidate):
+        return candidate
+    return shutil.which("iverilog") or "iverilog"
+
+
+DEFAULT_IVERILOG = find_iverilog()
 
 CHECK_RE = re.compile(r"^(PASS|FAIL)\s+(\S+)(.*)$")
 
@@ -62,7 +76,9 @@ def run_iverilog(exe, design, top, timeout, workdir):
     code, out = run([exe, "-g2005", "-o", vvp, "-s", top, design], timeout, workdir)
     if code != 0:
         return code, out
-    vvp_exe = os.path.join(os.path.dirname(exe), "vvp.exe")
+    vvp_exe = os.path.join(os.path.dirname(exe), "vvp" + EXE) if os.path.dirname(exe) else ""
+    if not vvp_exe or not os.path.isfile(vvp_exe):
+        vvp_exe = shutil.which("vvp") or "vvp"
     return run([vvp_exe, vvp], timeout, workdir)
 
 
@@ -126,7 +142,7 @@ def main():
     designs = sorted(
         os.path.join(HERE, f) for f in os.listdir(HERE) if f.endswith(".v")
     )
-    have_iverilog = os.path.isfile(args.iverilog)
+    have_iverilog = os.path.isfile(args.iverilog) or shutil.which(args.iverilog) is not None
     if not os.path.isfile(args.moonvsim):
         print("moonvsim binary not found:", args.moonvsim)
         print("build it with: moon build src/cmd --target native")

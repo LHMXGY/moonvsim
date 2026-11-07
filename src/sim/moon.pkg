@@ -1,10 +1,10 @@
 import {
-  "moonvsim/moonvsim/src/ast" @ast,
-  "moonvsim/moonvsim/src/elaborate" @elaborate,
-  "moonvsim/moonvsim/src/value" @value,
-  "moonvsim/moonvsim/src/vcd" @vcd,
+  "moonvsim/moonvsim/src/ast",
+  "moonvsim/moonvsim/src/elaborate",
+  "moonvsim/moonvsim/src/value",
+  "moonvsim/moonvsim/src/vcd",
 }
 
 import {
-  "moonvsim/moonvsim/src/parser" @parser,
+  "moonvsim/moonvsim/src/parser",
 } for "wbtest"
