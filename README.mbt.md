@@ -10,6 +10,10 @@ on every check of every design in the conformance suite.
 
 ![waveform viewer](web/screenshot.png)
 
+The viewer is a single dependency-free HTML file and is hosted at
+**<https://lhmxgy.github.io/moonvsim/>** — press *load demo trace* to see a
+counter, a shift register and an FSM produced by `moonvsim` itself.
+
 ```sh
 $ moonvsim run examples/counter.v --vcd counter.vcd --max-time 120
 t=100 q=9 carry=0
@@ -150,8 +154,28 @@ moon test                      # 33 unit tests across value/lexer/parser/elabora
 python conformance/run_conformance.py
 ```
 
+## Performance
+
+`bench/run_bench.py` runs `examples/bench.v` (a 16-bit LFSR, a 32-bit
+accumulator and a combinational datapath) for 20,000 clock cycles under both
+simulators and requires them to agree on the final state:
+
+| simulator | wall time | cycles / s |
+| --- | --- | --- |
+| moonvsim (native, release) | 492 ms | 40,637 |
+| Icarus Verilog 13.0 | 70 ms | 287,154 |
+
+Both print `bench done sum=26dfe118 prod=4c9b18d7`. The current engine walks the
+AST and resolves identifiers by name, which costs roughly 7× against Icarus;
+resolving operands to signal ids at lowering time (a bytecode pass) is the
+first item on the performance roadmap. Correctness is the priority for this
+milestone, and the throughput number is reported as measured rather than
+hidden.
+
 ## Roadmap
 
+* Bytecode lowering: resolve identifiers to signal ids once, so evaluation
+  stops doing string work (targeted at closing the Icarus gap above).
 * `casez`/`casex` with wildcard matching, `function`/`task` execution.
 * Memories (`reg [7:0] mem [0:1023]`) and part-select writes on memories.
 * Multi-clock domain warnings, X-checking lint pass.
