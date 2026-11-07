@@ -29,7 +29,9 @@ MoonBit already has a Verilog *linter* (`moonbit-rtl`), VCD readers
 master (`MoonECAT`), but no digital RTL execution engine. The linters say so
 themselves: *"not a synthesizer, simulator, or replacement for a complete IEEE
 Verilog implementation"*. `moonvsim` is that missing keystone — it turns a
-design into events, not just diagnostics.
+design into events, not just diagnostics. The full keyword-by-keyword survey
+behind that claim, including the projects that were checked and rejected, is in
+[docs/ECOSYSTEM.zh.md](docs/ECOSYSTEM.zh.md).
 
 ## What is implemented
 
