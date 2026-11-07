@@ -64,10 +64,11 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
     @ast.Case(sel, arms, default) => {
       let sv = self.eval(scope, sel, self.width_of(scope, sel))
       let mut done = false
+      let mut default_body : @ast.Stmt? = None
       for arm in arms {
-        if !done {
-          match arm.labels {
-            Some(labels) =>
+        match arm.labels {
+          Some(labels) => {
+            if !done {
               for lab in labels {
                 if !done {
                   let lv = self.eval(scope, lab, sv.width)
@@ -81,14 +82,19 @@ fn Sim::exec(self : Sim, scope : Int32, s : @ast.Stmt) -> Unit {
                   }
                 }
               }
-            None => ()
+            }
           }
+          None => default_body = Some(arm.body)
         }
       }
       if !done {
-        match default {
+        match default_body {
           Some(d) => self.exec(scope, d)
-          None => ()
+          None =>
+            match default {
+              Some(d) => self.exec(scope, d)
+              None => ()
+            }
         }
       }
     }

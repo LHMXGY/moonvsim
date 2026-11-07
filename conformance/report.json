@@ -1,0 +1,253 @@
+{
+  "moonvsim": "E:\\ds\\moonvsim\\_build\\native\\debug\\build\\src\\cmd\\cmd.exe",
+  "iverilog": "E:\\ds\\tools\\iverilog\\mingw64\\bin\\iverilog.exe",
+  "designs": [
+    {
+      "design": "t_arith.v",
+      "top": "t_arith",
+      "checks": {
+        "arith.wrap8": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.ctx9": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.selfdet": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.sub": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.mul": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.div": {
+          "pass": true,
+          "detail": ""
+        },
+        "arith.mod": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(arith.ctx9,arith.div,arith.mod,arith.mul,arith.selfdet,arith.sub,arith.wrap8)"
+    },
+    {
+      "design": "t_bits.v",
+      "top": "t_bits",
+      "checks": {
+        "bits.and": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.or": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.xor": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.not": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.shl": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.shr": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redand": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redor": {
+          "pass": true,
+          "detail": ""
+        },
+        "bits.redxor": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(bits.and,bits.not,bits.or,bits.redand,bits.redor,bits.redxor,bits.shl,bits.shr,bits.xor)"
+    },
+    {
+      "design": "t_case.v",
+      "top": "t_case",
+      "checks": {
+        "case.zero": {
+          "pass": true,
+          "detail": ""
+        },
+        "case.two": {
+          "pass": true,
+          "detail": ""
+        },
+        "case.default": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(case.default,case.two,case.zero)"
+    },
+    {
+      "design": "t_clock.v",
+      "top": "t_clock",
+      "checks": {
+        "clock.count": {
+          "pass": true,
+          "detail": ""
+        },
+        "clock.shift": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(clock.count,clock.shift)"
+    },
+    {
+      "design": "t_display.v",
+      "top": "t_display",
+      "checks": {
+        "display.format": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(display.format)"
+    },
+    {
+      "design": "t_fsm.v",
+      "top": "t_fsm",
+      "checks": {
+        "fsm.green": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(fsm.green)"
+    },
+    {
+      "design": "t_hier.v",
+      "top": "t_hier",
+      "checks": {
+        "hier.invert0": {
+          "pass": true,
+          "detail": ""
+        },
+        "hier.invert1": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(hier.invert0,hier.invert1)"
+    },
+    {
+      "design": "t_logic.v",
+      "top": "t_logic",
+      "checks": {
+        "logic.lt": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.ne": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.eq": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.land": {
+          "pass": true,
+          "detail": ""
+        },
+        "logic.max": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(logic.eq,logic.land,logic.lt,logic.max,logic.ne)"
+    },
+    {
+      "design": "t_param.v",
+      "top": "t_param",
+      "checks": {
+        "param.w4": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(param.w4)"
+    },
+    {
+      "design": "t_select.v",
+      "top": "t_select",
+      "checks": {
+        "select.hi": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.lo": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.concat": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.repl": {
+          "pass": true,
+          "detail": ""
+        },
+        "select.rotate": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(select.concat,select.hi,select.lo,select.repl,select.rotate)"
+    },
+    {
+      "design": "t_xprop.v",
+      "top": "t_xprop",
+      "checks": {
+        "xprop.sum": {
+          "pass": true,
+          "detail": ""
+        },
+        "xprop.resolved": {
+          "pass": true,
+          "detail": ""
+        }
+      },
+      "reference": {},
+      "verdict": "DIVERGES(xprop.resolved,xprop.sum)"
+    }
+  ],
+  "summary": {
+    "designs": 11,
+    "checks": 38,
+    "passed": 38,
+    "diverged": 11,
+    "reference": "iverilog"
+  }
+}

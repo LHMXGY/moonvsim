@@ -153,9 +153,11 @@ pub fn lower_all(net : @elaborate.Netlist) -> Lowered {
     if loops && has_wait {
       ops.push(Jump(0))
     }
+    // An `always` block that never waits is combinational: re-run it in the
+    // settle loop instead of scheduling it as a thread.
     let is_comb = match p.kind {
-      @ast.AlwaysComb => if has_wait { false } else { true }
-      _ => false
+      @ast.Initial => false
+      _ => if has_wait { false } else { true }
     }
     if is_comb {
       combs.push({ scope: p.scope, body: p.body })
